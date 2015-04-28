@@ -1,0 +1,12 @@
+{
+  "name": "geoip_resolver",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+  	"start": "coffee geoip_resolver.coffee"
+	},
+  "dependencies": {
+    "coffee-script": "1.9.2",
+    "geoip": "0.5.8"
+  }
+}
