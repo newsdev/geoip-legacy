@@ -27,63 +27,67 @@ http.get {
         # No request is cachable
         res.setHeader 'Vary', '*'
 
-        unless request.headers['referer'] and request.headers['referer'].match(/^http:\/\/([\w-]+\.)*nytimes\.com\//)
+        switch
 
-          # Respond with not found instead of an error
-          res.statusCode = 401;
-          res.setHeader 'Content-Type', 'text/plain'
-          res.write 'not found'
+          when request.url == "/status"
+            res.setHeader 'Content-Type', 'text/plain'
+            res.write 'ok'
 
-        else 
+          when request.headers['referer'] and request.headers['referer'].match(/^http:\/\/([\w-]+\.)*nytimes\.com\//)
 
-          responseObj = {
-            response: true
-          }
+            responseObj = {
+              response: true
+            }
 
-          # Parse the URL
-          parsed = url.parse request.url, true
+            # Parse the URL
+            parsed = url.parse request.url, true
 
-          # Check if the lookup is ready
-          if lookup
+            # Check if the lookup is ready
+            if lookup
 
-            # Start with the source IP
-            ip = request.connection.remoteAddress
+              # Start with the source IP
+              ip = request.connection.remoteAddress
 
-            # Check for an IP provided as a parameter
-            if parsed['query']['ip']
-              ip = parsed['query']['ip']
+              # Check for an IP provided as a parameter
+              if parsed['query']['ip']
+                ip = parsed['query']['ip']
+              
+              # Otherwise handle proxied connections
+              else if request.headers['x-forwarded-for']
+                ip = request.headers['x-forwarded-for'].split(/,\s+/)[0]
+              
+              # Run the actual lookup
+              citydata = lookup.lookupSync ip
+
+              # Insure there was a valid response
+              if citydata
+                responseObj.data = citydata
+                responseObj.status = 'ok'
+                res.statusCode = 200;
+              else
+                responseObj.status = 'error'
+                res.statusCode = 500;
             
-            # Otherwise handle proxied connections
-            else if request.headers['x-forwarded-for']
-              ip = request.headers['x-forwarded-for'].split(/,\s+/)[0]
-            
-            # Run the actual lookup
-            citydata = lookup.lookupSync ip
-
-            # Insure there was a valid response
-            if citydata
-              responseObj.data = citydata
-              responseObj.status = 'ok'
-              res.statusCode = 200;
+            # Handle the lookup not being ready
             else
               responseObj.status = 'error'
               res.statusCode = 500;
-          
-          # Handle the lookup not being ready
-          else
-            responseObj.status = 'error'
-            res.statusCode = 500;
+              
+            # Stringify the results
+            responseObjString = JSON.stringify responseObj
             
-          # Stringify the results
-          responseObjString = JSON.stringify responseObj
-          
-          # Check if a callback was specified
-          if parsed['query']['callback']
-            res.setHeader 'Content-Type', 'application/javascript'
-            res.write "#{parsed['query']['callback'].replace(/\W/g, '') || 'callback'}(#{responseObjString});"
+            # Check if a callback was specified
+            if parsed['query']['callback']
+              res.setHeader 'Content-Type', 'application/javascript'
+              res.write "#{parsed['query']['callback'].replace(/\W/g, '') || 'callback'}(#{responseObjString});"
+            else
+              res.setHeader 'Content-Type', 'application/json'
+              res.write responseObjString
+
           else
-            res.setHeader 'Content-Type', 'application/json'
-            res.write responseObjString
+            res.statusCode = 401;
+            res.setHeader 'Content-Type', 'text/plain'
+            res.write 'unauthorized'
 
         res.end()
 
