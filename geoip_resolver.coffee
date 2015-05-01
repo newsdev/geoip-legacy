@@ -4,6 +4,8 @@ url = require 'url'
 fs = require 'fs'
 zlib = require 'zlib'
 
+origin_re = /^http:\/\/([\w-]+\.)*nytimes\.com$/
+
 lookup = false
 
 http.get {
@@ -33,7 +35,9 @@ http.get {
             res.setHeader 'Content-Type', 'text/plain'
             res.write 'ok'
 
-          when request.headers['referer'] and request.headers['referer'].match(/^http:\/\/([\w-]+\.)*nytimes\.com\//)
+          when request.headers['origin'] and origin_re.test(request.headers['origin'])
+
+            res.setHeader 'access-control-allow-origin', request.headers['origin']
 
             responseObj = {
               response: true
@@ -65,8 +69,8 @@ http.get {
                 responseObj.status = 'ok'
                 res.statusCode = 200;
               else
-                responseObj.status = 'error'
-                res.statusCode = 500;
+                responseObj.status = 'not found'
+                res.statusCode = 200;
             
             # Handle the lookup not being ready
             else
@@ -90,10 +94,11 @@ http.get {
             res.write 'unauthorized'
 
         res.end()
-
+        
       server.listen 80, ->
         console.log "server listening on :80"
-        
+
+
 .on 'error', (err) ->
   throw err
 
