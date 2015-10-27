@@ -1,2 +1,2 @@
-FROM node:0.12.2-onbuild
+FROM node:4.2.1-onbuild
 EXPOSE 80

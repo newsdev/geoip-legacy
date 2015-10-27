@@ -98,7 +98,6 @@ http.get {
       server.listen 80, ->
         console.log "server listening on :80"
 
-
 .on 'error', (err) ->
   throw err
 

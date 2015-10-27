@@ -6,7 +6,7 @@
   	"start": "coffee geoip_resolver.coffee"
 	},
   "dependencies": {
-    "coffee-script": "1.9.2",
-    "geoip": "0.5.8"
+    "coffee-script": "1.10.0",
+    "geoip": "0.6.1"
   }
 }
