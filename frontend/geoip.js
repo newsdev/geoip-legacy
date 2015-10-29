@@ -25,9 +25,7 @@
     var ready = function() {
           var dfd = new $.Deferred();
           $(document).ready(function() {
-            var $elems = $('[data-geoip-match-on]');
-            console.log('DOM QUEST', $elems.length);
-            dfd.resolve($elems);
+            dfd.resolve($('[data-geoip-match-on]'));
           });
           return dfd.promise();
         },
@@ -35,22 +33,13 @@
         fetch = function() {
           return $.ajax({
             url: 'http://geoip.newsdev.nytimes.com',
-            dataType: 'json',
-            success: function(reponse) {
-              console.log('success', JSON.stringify(reponse));
-            },
-            error: function(reponse) {
-              console.log('error', JSON.stringify(reponse));
-            }
+            dataType: 'json'
           });
         },
 
         complete = function(fetchArgs, $elems) {
           var geoipData = fetchArgs[0].data || {},
               cb;
-
-
-          console.log('geoipData', JSON.stringify(geoipData), $elems.get(0).outerHTML);
           // by default hides elements that don't match, shows those that do.
           $elems.each(function() {
             var $this = $(this),
@@ -76,7 +65,7 @@
 
         queue = [];
 
-        // run();
+        run();
 
     return function(callback) {
       if (_.isFunction(callback)) {

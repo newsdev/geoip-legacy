@@ -7,7 +7,6 @@ describe("geoip client-side functionality", function() {
             }),
             $elem = $('<div ' + attrs.join(' ') + '></div>');
         $content.append($elem);
-        console.log('added' + $elem.get(0).outerHTML);
         return $elem;
       },
       mockFetch = function(response) {
@@ -19,7 +18,6 @@ describe("geoip client-side functionality", function() {
   });
 
   afterEach(function() {
-    console.log('empty!!!');
     $content.empty();
     jasmine.Ajax.uninstall();
   });
@@ -49,7 +47,6 @@ describe("geoip client-side functionality", function() {
 
     nytint_geoip(function() {
       expect($e1.css('display')).toBe('none');
-      // done();
     });
   });
 
