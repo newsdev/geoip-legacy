@@ -22,6 +22,17 @@
 
     */
 
+
+    var qsOptions = _.reduce(window.location.search.slice(1).split('&'), function(memo, params) {
+      var prefix = 'geoip_',
+          parts;
+      if (params.indexOf(prefix) === 0) {
+        parts = params.split('=');
+        memo[parts[0].replace(prefix, '')] = parts[1];
+      }
+      return memo;
+    }, {});
+
     var ready = function() {
           var dfd = new $.Deferred();
           $(document).ready(function() {
@@ -40,6 +51,7 @@
         complete = function(fetchArgs, $elems) {
           var geoipData = fetchArgs[0].data || {},
               cb;
+          _.extend(geoipData, qsOptions);
           // by default hides elements that don't match, shows those that do.
           $elems.each(function() {
             var $this = $(this),
