@@ -34,6 +34,7 @@
 
     var geoip_cache,
         fetching = false,
+
         ready = function() {
           var dfd = new $.Deferred();
           $(document).ready(function() {
@@ -45,16 +46,20 @@
         fetch = function(forceRefresh) {
           var dfd = new $.Deferred(),
               promise = dfd.promise();
-          if (fetching) {
-            return fetching;
+          if (fetching && fetching.reject) {
+            if (forceRefresh) {
+              fetching.reject();
+            } else {
+              return fetching;
+            }
           }
-
           if (!forceRefresh && geoip_cache) {
             dfd.resolve(geoip_cache);
           } else {
+            console.log('make fetch call');
             fetching = promise;
             $.ajax({
-              url: 'http://geoip.newsdev.nytimes.com',
+              url: 'http://geoip.newsdev.nytimes.com/',
               dataType: 'json',
               success: function(response) {
                 geoip_cache = response.data;

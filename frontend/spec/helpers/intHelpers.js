@@ -18,7 +18,6 @@ function fireEvent(el, type) {
 }
 
 function returnJson(url, obj) {
-  console.log('returnJson', url, JSON.stringify(obj));
   jasmine.Ajax.stubRequest(url).andReturn({
     "status": 200,
     "contentType": 'application/javascript',
