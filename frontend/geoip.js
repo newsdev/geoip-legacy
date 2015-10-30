@@ -71,8 +71,7 @@
         },
 
         complete = function(geoipData, $elems) {
-          geoipData = geoipData || {};
-          _.extend(geoipData, qsOptions);
+          geoipData = _.extend({}, geoipData || {}, qsOptions);
           // by default hides elements that don't match, shows those that do.
           $elems.each(function() {
             var $this = $(this),
