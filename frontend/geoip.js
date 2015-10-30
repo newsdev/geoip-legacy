@@ -22,18 +22,22 @@
 
     */
 
-    var qsOptions = _.reduce(window.location.search.slice(1).split('&'), function(memo, params) {
-      var prefix = 'geoip_',
-          parts;
-      if (params.indexOf(prefix) === 0) {
-        parts = params.split('=');
-        memo[parts[0].replace(prefix, '')] = parts[1];
-      }
-      return memo;
-    }, {});
-
     var geoip_cache,
         fetching = [],
+
+        parseOptions = function(qs) {
+          return _.reduce(qs.split('&'), function(memo, params) {
+            var prefix = 'geoip_',
+                parts;
+            if (params.indexOf(prefix) === 0) {
+              parts = params.split('=');
+              memo[parts[0].replace(prefix, '')] = parts[1];
+            }
+            return memo;
+          }, {});
+        },
+
+        qsOptions = parseOptions(window.location.search.slice(1)),
 
         ready = function() {
           var dfd = new $.Deferred();
@@ -61,12 +65,10 @@
           var dfd = new $.Deferred(),
               promise = dfd.promise();
 
-          if ((!geoip_cache && fetching.length == 0) || forceRefresh) {
+          if ((!geoip_cache && fetching.length === 0) || forceRefresh) {
             fetching.push(dfd);
-            // return promise;
           } else if (geoip_cache) {
             dfd.resolve(geoip_cache);
-            // return promise;
           } else {
             return fetching[fetching.length - 1].promise();
           }
@@ -76,8 +78,10 @@
           return promise;
         },
 
-        complete = function(geoipData, $elems) {
-          geoipData = _.extend({}, geoipData || {}, qsOptions);
+        complete = function(geoipData, $elems, options) {
+          options = (_.isString(options)) ? parseOptions(options) :
+            (_.isObject(options) ? options : qsOptions);
+          geoipData = _.extend({}, geoipData || {}, options);
           // by default hides elements that don't match, shows those that do.
           $elems.each(function() {
             var $this = $(this),
@@ -92,19 +96,22 @@
               $else.show();
             }
           });
+          return geoipData;
         },
 
-        run = function(callback, forceRefresh) {
+        run = function(callback, forceRefresh, options) {
           $.when(fetch(forceRefresh), ready()).done(function(geoipData, $elems) {
-            complete(geoipData, $elems);
+            var modifiedGeo = complete(geoipData, $elems, options);
             if (_.isFunction(callback)) {
-              callback(geoipData, $elems);
+              callback(modifiedGeo, $elems);
             }
           });
         };
 
         if(!window.NYTINT_TESTING) {
           run();
+        } else {
+          run.parseOptions = parseOptions;
         }
 
     return run;
