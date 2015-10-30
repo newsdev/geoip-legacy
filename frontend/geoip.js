@@ -56,7 +56,6 @@
           if (!forceRefresh && geoip_cache) {
             dfd.resolve(geoip_cache);
           } else {
-            console.log('make fetch call');
             fetching = promise;
             $.ajax({
               url: 'http://geoip.newsdev.nytimes.com/',

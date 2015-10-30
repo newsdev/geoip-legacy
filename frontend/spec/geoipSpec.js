@@ -1,6 +1,7 @@
 describe("geoip client-side plugin", function() {
   
-  var $content = $('<div></div>').appendTo('body'),
+  var GEOIP_URL = 'http://geoip.newsdev.nytimes.com/',
+      $content = $('<div></div>').appendTo('body'),
       add = function(opts) {
         var attrs = _.map(opts || {}, function(k, v) {
               return 'data-geoip-' + v + '=' + k;
@@ -10,7 +11,7 @@ describe("geoip client-side plugin", function() {
         return $elem;
       },
       mockFetch = function(response) {
-        returnJson('http://geoip.newsdev.nytimes.com/', { data: response });
+        returnJson(GEOIP_URL, { data: response });
       };
 
   beforeEach(function() {
@@ -48,19 +49,22 @@ describe("geoip client-side plugin", function() {
     }, true);
   });
 
-  // it("caches the results of the geoip call rather than making the request each time", function(done) {
-  //   mockFetch({ country_code: 'UK' });
-  //   nytint_geoip(function() {
-  //     console.log('jasmine requests?', JSON.stringify(jasmine.Ajax.requests));
-  //     expect(jasmine.Ajax.requests.length).toBe(1);
-  //     done();
-  //   }, true);
-  //   expect(jasmine.Ajax.requests.length).toBe(1);
+  it("caches the results of the geoip call rather than making the request each time unless forced to refresh", function(done) {
+    mockFetch({ country_code: 'UK' });
+    
+    nytint_geoip(function() {
+      expect(jasmine.Ajax.requests.at(0).url).toBe('http://geoip.newsdev.nytimes.com/');
+    }, true);
 
-  //   nytint_geoip(function() {
-  //     console.log('jasmine requests 2?', JSON.stringify(jasmine.Ajax.requests));
-  //   });
-  // });
+    nytint_geoip(function() {
+      expect(jasmine.Ajax.requests.at(1)).toBeUndefined();
+    });
+
+    nytint_geoip(function() {
+      expect(jasmine.Ajax.requests.at(1).url).toBe('http://geoip.newsdev.nytimes.com/');
+      done();
+    }, true);
+  });
 
   // it("shows a hidden element if geoip-match satisfies geoip-match-on", function() {
   //   var $e1 = add({
