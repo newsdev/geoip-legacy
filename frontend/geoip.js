@@ -22,7 +22,6 @@
 
     */
 
-
     var qsOptions = _.reduce(window.location.search.slice(1).split('&'), function(memo, params) {
       var prefix = 'geoip_',
           parts;
@@ -33,7 +32,9 @@
       return memo;
     }, {});
 
-    var ready = function() {
+    var geoip_cache,
+        fetching = false,
+        ready = function() {
           var dfd = new $.Deferred();
           $(document).ready(function() {
             dfd.resolve($('[data-geoip-match-on]'));
@@ -41,16 +42,36 @@
           return dfd.promise();
         },
 
-        fetch = function() {
-          return $.ajax({
-            url: 'http://geoip.newsdev.nytimes.com',
-            dataType: 'json'
-          });
+        fetch = function(forceRefresh) {
+          var dfd = new $.Deferred(),
+              promise = dfd.promise();
+          if (fetching) {
+            return fetching;
+          }
+
+          if (!forceRefresh && geoip_cache) {
+            dfd.resolve(geoip_cache);
+          } else {
+            fetching = promise;
+            $.ajax({
+              url: 'http://geoip.newsdev.nytimes.com',
+              dataType: 'json',
+              success: function(response) {
+                geoip_cache = response.data;
+                dfd.resolve(geoip_cache);
+                fetching = false;
+              },
+              error: function() {
+                dfd.reject('geoip service error');
+                fetching = false;
+              }
+            });
+          }
+          return promise;
         },
 
-        complete = function(fetchArgs, $elems) {
-          var geoipData = fetchArgs[0].data || {},
-              cb;
+        complete = function(geoipData, $elems) {
+          geoipData = geoipData || {};
           _.extend(geoipData, qsOptions);
           // by default hides elements that don't match, shows those that do.
           $elems.each(function() {
@@ -67,23 +88,23 @@
             }
           });
           while (queue.length > 0) {
-            queue.shift()();
+            queue.shift()(geoipData, $elems);
           }
         },
 
-        run = function() {
-          $.when(fetch(), ready()).done(complete);
+        run = function(forceRefresh) {
+          $.when(fetch(forceRefresh), ready()).done(complete);
         },
 
         queue = [];
 
         run();
 
-    return function(callback) {
+    return function(callback, forceRefresh) {
       if (_.isFunction(callback)) {
         queue.push(callback);
       }
-      run();
+      run(forceRefresh);
     };
 
 });
