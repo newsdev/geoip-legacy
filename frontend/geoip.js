@@ -33,7 +33,7 @@
     }, {});
 
     var geoip_cache,
-        fetching = false,
+        fetching = [],
 
         ready = function() {
           var dfd = new $.Deferred();
@@ -43,33 +43,35 @@
           return dfd.promise();
         },
 
+        queryApi = function(dfd) {
+          $.ajax({
+            url: 'http://geoip.newsdev.nytimes.com/',
+            dataType: 'json',
+            success: function(response) {
+              geoip_cache = response.data;
+              dfd.resolve(geoip_cache);
+            },
+            error: function() {
+              dfd.reject('geoip service error');
+            }
+          });
+        },
+
         fetch = function(forceRefresh) {
           var dfd = new $.Deferred(),
               promise = dfd.promise();
-          if (fetching && fetching.reject) {
-            if (forceRefresh) {
-              fetching.reject();
-            } else {
-              return fetching;
-            }
-          }
-          if (!forceRefresh && geoip_cache) {
+
+          if ((!geoip_cache && fetching.length == 0) || forceRefresh) {
+            fetching.push(dfd);
+            // return promise;
+          } else if (geoip_cache) {
             dfd.resolve(geoip_cache);
+            // return promise;
           } else {
-            fetching = promise;
-            $.ajax({
-              url: 'http://geoip.newsdev.nytimes.com/',
-              dataType: 'json',
-              success: function(response) {
-                geoip_cache = response.data;
-                dfd.resolve(geoip_cache);
-                fetching = false;
-              },
-              error: function() {
-                dfd.reject('geoip service error');
-                fetching = false;
-              }
-            });
+            return fetching[fetching.length - 1].promise();
+          }
+          if (fetching.length > 0) {
+            queryApi(fetching.shift());
           }
           return promise;
         },
@@ -90,24 +92,21 @@
               $else.show();
             }
           });
-          while (queue.length > 0) {
-            queue.shift()(geoipData, $elems);
-          }
         },
 
-        run = function(forceRefresh) {
-          $.when(fetch(forceRefresh), ready()).done(complete);
-        },
+        run = function(callback, forceRefresh) {
+          $.when(fetch(forceRefresh), ready()).done(function(geoipData, $elems) {
+            complete(geoipData, $elems);
+            if (_.isFunction(callback)) {
+              callback(geoipData, $elems);
+            }
+          });
+        };
 
-        queue = [];
+        if(!window.NYTINT_TESTING) {
+          run();
+        }
 
-        run();
-
-    return function(callback, forceRefresh) {
-      if (_.isFunction(callback)) {
-        queue.push(callback);
-      }
-      run(forceRefresh);
-    };
+    return run;
 
 });

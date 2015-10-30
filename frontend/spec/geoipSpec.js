@@ -30,7 +30,7 @@ describe("geoip client-side plugin", function() {
   it("callbacks passed to the exposed function will be passed the geoip response data, and a $ set of qualifying elements", function(done) {
     var $e1 = add({
           'match-on': 'country_code',
-          'match': 'UK'
+          'match': 'XXX'
         }),
         $e2 = add({
           'match-on': 'continent_code',
@@ -47,7 +47,7 @@ describe("geoip client-side plugin", function() {
       expect($elems.get(1)).toEqual($e2.get(0));
       done();
     }, true);
-  });
+  });  
 
   it("caches the results of the geoip call rather than making the request each time unless forced to refresh", function(done) {
     mockFetch({ country_code: 'UK' });
@@ -66,33 +66,35 @@ describe("geoip client-side plugin", function() {
     }, true);
   });
 
-  // it("shows a hidden element if geoip-match satisfies geoip-match-on", function() {
-  //   var $e1 = add({
-  //         'match-on': 'country_code',
-  //         'match': 'UK'
-  //       });
+  it("shows a hidden element if geoip-match satisfies geoip-match-on", function(done) {
+    var $e1 = add({
+          'match-on': 'country_code',
+          'match': 'US'
+        });
     
-  //   mockFetch({ country_code: 'UK' });
+    mockFetch({ country_code: 'US' });
 
-  //   $e1.hide();
+    $e1.hide();
 
-  //   nytint_geoip(function() {
-  //     expect($e1.css('display')).not.toBe('none');
-  //   }, true);
-  // });
+    nytint_geoip(function(data, $elems) {
+      expect($e1.css('display')).not.toBe('none');
+      done();
+    }, true);
+  });
 
-  // it("hides a visible element if geoip-match does not satisfies geoip-match-on", function() {
-  //   var $e1 = add({
-  //         'match-on': 'country_code',
-  //         'match': 'UK'
-  //       });
+  it("hides a visible element if geoip-match does not satisfies geoip-match-on", function(done) {
+    var $e1 = add({
+          'match-on': 'country_code',
+          'match': 'US'
+        });
     
-  //   mockFetch({ country_code: 'US' });
+    mockFetch({ country_code: 'UK' });
 
-  //   nytint_geoip(function() {
-  //     expect($e1.css('display')).toBe('none');
-  //   }, true);
-  // });
+    nytint_geoip(function() {
+      expect($e1.css('display')).toBe('none');
+      done();
+    }, true);
+  });
 
   
 });
