@@ -134,6 +134,28 @@ describe("geoip client-side plugin", function() {
     }, true);
   });
 
+  it("and else can target whatever a jQuery selector targets", function(done) {
+    var $e1 = add({
+          'match-on': 'country_code',
+          'match': 'US',
+          'else': '#foo, .bar'
+        }),
+        $e2 = add({}).attr('id', 'foo');
+        $e3 = add({}).addClass('bar')
+
+    $e2.hide();
+    $e3.hide();
+    
+    mockFetch({ country_code: 'UK' });
+
+    nytint_geoip(function() {
+      expect($e1.css('display')).toBe('none');
+      expect($e2.css('display')).not.toBe('none');
+      expect($e3.css('display')).not.toBe('none');
+      done();
+    }, true);
+  });
+
   it("geoip-match can be a list of values too", function(done) {
     var $e1 = add({
           'match-on': 'country_code',
@@ -146,6 +168,48 @@ describe("geoip client-side plugin", function() {
 
     nytint_geoip(function(data, $elems) {
       expect($e1.css('display')).not.toBe('none');
+      done();
+    }, true);
+  });
+
+
+  it("if the value of geoip-match-on is an integer that will work too", function(done) {
+    var $e1 = add({
+          'match-on': 'dma_code',
+          'match': '501'
+        });
+    
+    mockFetch({ dma_code: 501 });
+
+    $e1.hide();
+
+    nytint_geoip(function(data, $elems) {
+      expect($e1.css('display')).not.toBe('none');
+      done();
+    }, true);
+  });
+
+  it("if the value of geoip-match-on is a number that will work too", function(done) {
+    var $e1 = add({
+          'match-on': 'latitude',
+          'match': '38.75833861450195, 40.75529861450195, 36.73456861450195'
+        }),
+        $e2 = add({
+          'match-on': 'longitude',
+          'match': '-73.99240112304688'
+        });
+    
+    mockFetch({
+      "latitude":40.75529861450195,
+      "longitude":-73.99240112304688
+    });
+
+    $e1.hide();
+    $e2.hide();
+
+    nytint_geoip(function(data, $elems) {
+      expect($e1.css('display')).not.toBe('none');
+      expect($e2.css('display')).not.toBe('none');
       done();
     }, true);
   });

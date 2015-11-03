@@ -85,15 +85,18 @@
           // by default hides elements that don't match, shows those that do.
           $elems.each(function() {
             var $this = $(this),
-                match = _.map(($this.data('geoipMatch') || '').split(','), function(e) { return $.trim(e); }),
+                match = _.map(($this.data('geoipMatch') || '').toString().split(','), function(e) { return $.trim(e); }),
                 matchOn = geoipData[$this.data('geoipMatchOn')],
                 $else = $($this.data('geoipElse'));
-            if (_.contains(match, matchOn)) {
-              $this.show();
-              $else.hide();
-            } else {
-              $this.hide();
-              $else.show();
+            if (matchOn) {
+              matchOn = matchOn.toString();
+              if (_.contains(match, matchOn)) {
+                $this.show();
+                $else.hide();
+              } else {
+                $this.hide();
+                $else.show();
+              }
             }
           });
           return geoipData;
