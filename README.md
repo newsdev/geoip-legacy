@@ -9,8 +9,8 @@ A simple, Node-based service for providing geolocation data based on a user's IP
 * [Support](#support)
 * [Installation](#installation)
 * [Usage](#usage)
-* [Tests](#tests)
-* [Upcoming Features](#upcoming-features)
+    * [Geoip Service](#geoip-service)
+    * [Client-side JS](#client-side-js)
 * [Other Relevant Documentation](#other-relevant-documentation)
 * [License](#license)
 
@@ -24,7 +24,7 @@ A simple, Node-based service for providing geolocation data based on a user's IP
 
 ## Support
 
-*The Node portion of this project was written by Eric Buth.  The JS plugin was written by Scott Blumenthal.  Please feel free to add issues to this repo on Github.*
+Please add issues to this repo on Github.
 
 ## Installation
 
@@ -35,6 +35,10 @@ npm install
 ```
 
 ## Usage
+
+### Geoip Service
+
+TK
 
 ### Client-side JS
 
@@ -138,21 +142,25 @@ the following will be true:
 <div data-geoip-match-on="country_code" data-geoip-match="CA" style="display: none" data-geoip-else="#everyone-else">I will be shown.</div>
 ```
 
+#### Modifying the Client-side Script
 
-## Tests
+You will need to install JS dependencies before developing.  From the root directory of the project, run:
 
-*Are there tests?  How do I run them?*
+```
+npm install
+```
 
-## Upcoming Features
+Changes should be made to frontend/geoip.js.  Please add tests to frontend/spec/geoipSpec.js.  Minify the updated script by running `grunt uglify` before checking in your changes.
 
-*What are you working on next?  Are there milestones in the Github issues worth referencing?*
+#### Tests
+
+The Jasmine tests can be run via PhantomJS using grunt: `grunt jasmine`.
 
 ## Other Relevant Documentation
 
 *Links here to external documentation that might help someone using or developing in this project.  For example:*
 
-* [Bower](http://bower.io) - A package manager for the web
-* [jQuery](https://jQuery.com) - You'd better know by now
+* [Jasmine](http://jasmine.github.io/2.3/introduction.html) - A behavior-driven development framework for testing JavaScript code
 
 ## License
 
