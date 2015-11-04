@@ -1,0 +1,1 @@
+window.NYTINT_TESTING = true;
