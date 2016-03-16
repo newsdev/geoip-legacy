@@ -46,7 +46,7 @@ The Jasmine tests can be run via PhantomJS using grunt: `grunt jasmine`.
 Since the server requires GNU tar, you'll likely find it easiest to develop locally on OS X by building and then running a docker image:
 
 ```
-docker build -t geoip . && docker run -p 80:80 -e MAXMIND_LICENSE=... geoip
+docker build -t geoip . && docker run -p 80:80 -e MAXMIND_LICENSE=... -e ORIGIN_RE="/^https?:\/\/([\w-]+\.)*yourdomain\.com(:\d+)?$/" geoip
 ```
 
 #### On other platforms
