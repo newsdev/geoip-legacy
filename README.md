@@ -18,15 +18,13 @@ A simple, Node-based service for providing geolocation data based on a user's IP
 
 * Capable of handling homepage traffic
 
-## Requirements
-
-* TK
-
 ## Support
 
 Please add issues to this repo on Github.
 
-## Installation
+## Local Development
+
+### Client-side JS
 
 JavaScript dependencies must be installed via NPM:
 
@@ -34,11 +32,28 @@ JavaScript dependencies must be installed via NPM:
 npm install
 ```
 
+Changes should be made to `frontend/geoip.js`.  Please add tests to `frontend/spec/geoipSpec.js`.  Minify the updated script by running `grunt uglify` before checking in your changes.
+
+#### Tests
+
+The Jasmine tests can be run via PhantomJS using grunt: `grunt jasmine`.
+
+### Server
+
+
+#### On OS X
+
+Since the server requires GNU tar, you'll likely find it easiest to develop locally on OS X by building and then running a docker image:
+
+```
+docker build -t geoip . && docker run -p 80:80 -e MAXMIND_LICENSE=... -e ORIGIN_RE="/^https?:\/\/([\w-]+\.)*yourdomain\.com(:\d+)?$/" geoip
+```
+
+#### On other platforms
+
+Run `npm start`.
+
 ## Usage
-
-### Geoip Service
-
-TK
 
 ### Client-side JS
 
@@ -60,6 +75,7 @@ For example:
 require(['foundation/main'], function() {
   require(['nytint-geoip'], {});
 });
+</script>
 ```
 
 Use the same basic format to add your own custom logic for handling the response from our geoip service:
@@ -142,25 +158,12 @@ the following will be true:
 <div data-geoip-match-on="country_code" data-geoip-match="CA" style="display: none" data-geoip-else="#everyone-else">I will be shown.</div>
 ```
 
-#### Modifying the Client-side Script
-
-You will need to install JS dependencies before developing.  From the root directory of the project, run:
-
-```
-npm install
-```
-
-Changes should be made to frontend/geoip.js.  Please add tests to frontend/spec/geoipSpec.js.  Minify the updated script by running `grunt uglify` before checking in your changes.
-
-#### Tests
-
-The Jasmine tests can be run via PhantomJS using grunt: `grunt jasmine`.
-
 ## Other Relevant Documentation
 
 *Links here to external documentation that might help someone using or developing in this project.  For example:*
 
 * [Jasmine](http://jasmine.github.io/2.3/introduction.html) - A behavior-driven development framework for testing JavaScript code
+
 
 ## License
 
