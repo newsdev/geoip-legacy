@@ -4,7 +4,8 @@ url = require 'url'
 fs = require 'fs'
 zlib = require 'zlib'
 
-origin_re = /^http:\/\/([\w-]+\.)*nytimes\.com$/
+throw "You must supply a ORIGIN_RE ENV var!" if !process.env.ORIGIN_RE?
+origin_re = new RegExp process.env.ORIGIN_RE
 
 lookup = false
 
