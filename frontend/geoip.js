@@ -25,7 +25,8 @@
     var geoip_cache,
         fetching = [],
         key = 'nyt-geoip',
-        local_data = (localStorage) ? JSON.parse(localStorage.getItem(key)) : null,
+        storage = sessionStorage, //localStorage
+        stored_data = (storage) ? JSON.parse(storage.getItem(key)) : null,
 
         parseOptions = function(qs) {
           return _.reduce(qs.split('&'), function(memo, params) {
@@ -56,7 +57,7 @@
             })
             .done(function(response) {
               geoip_cache = response.data;
-              localStorage.setItem(key, JSON.stringify(geoip_cache));
+              storage.setItem(key, JSON.stringify(geoip_cache));
               dfd.resolve(geoip_cache);
             })
             .fail(function() {
@@ -68,10 +69,10 @@
           var dfd = new $.Deferred(),
               promise = dfd.promise();
 
-          if ((!(local_data || geoip_cache) && fetching.length === 0) || forceRefresh) {
+          if ((!(stored_data || geoip_cache) && fetching.length === 0) || forceRefresh) {
             fetching.push(dfd);
-          } else if (local_data) {
-            dfd.resolve(local_data);
+          } else if (stored_data) {
+            dfd.resolve(stored_data);
           } else if (geoip_cache) {
             dfd.resolve(geoip_cache);
           } else {
