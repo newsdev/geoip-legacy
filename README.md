@@ -1,4 +1,4 @@
-# Geoip
+# GeoIP
 
 ## Description
 
