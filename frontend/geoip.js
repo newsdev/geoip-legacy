@@ -24,6 +24,8 @@
 
     var geoip_cache,
         fetching = [],
+        key = 'nyt-geoip',
+        local_data = (localStorage) ? JSON.parse(localStorage.getItem(key)) : null,
 
         parseOptions = function(qs) {
           return _.reduce(qs.split('&'), function(memo, params) {
@@ -49,29 +51,33 @@
 
         queryApi = function(dfd) {
           $.ajax({
-            url: 'http://geoip.newsdev.nytimes.com/',
-            dataType: 'json',
-            success: function(response) {
+              url: 'http://geoip.newsdev.nytimes.com/',
+              dataType: 'json'
+            })
+            .done(function(response) {
               geoip_cache = response.data;
+              localStorage.setItem(key, JSON.stringify(geoip_cache));
               dfd.resolve(geoip_cache);
-            },
-            error: function() {
+            })
+            .fail(function() {
               dfd.reject('geoip service error');
-            }
-          });
+            });
         },
 
         fetch = function(forceRefresh) {
           var dfd = new $.Deferred(),
               promise = dfd.promise();
 
-          if ((!geoip_cache && fetching.length === 0) || forceRefresh) {
+          if ((!(local_data || geoip_cache) && fetching.length === 0) || forceRefresh) {
             fetching.push(dfd);
+          } else if (local_data) {
+            dfd.resolve(local_data);
           } else if (geoip_cache) {
             dfd.resolve(geoip_cache);
           } else {
             return fetching[fetching.length - 1].promise();
           }
+
           if (fetching.length > 0) {
             queryApi(fetching.shift());
           }
