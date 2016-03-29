@@ -32,7 +32,9 @@ JavaScript dependencies must be installed via NPM:
 npm install
 ```
 
-Changes should be made to `frontend/geoip.js`.  Please add tests to `frontend/spec/geoipSpec.js`.  Minify the updated script by running `grunt uglify` before checking in your changes.
+Changes should be made to `frontend/geoip.js`.  ~Please add tests to `frontend/spec/geoipSpec.js`.~ (currently not working)  
+
+Minify the updated script by running `grunt uglify` before checking in your changes.
 
 #### Tests
 
@@ -59,7 +61,7 @@ Run `npm start`.
 
 #### How to Include the JS
 
-This plugin is intended to be used on NYT5 pages, and will require (via RequireJS) jQuery and Underscore accordingly.  It can also be used in a non-RJS environment, but will expect jQuery and Underscore to exist on the `window` object.
+This plugin is intended to be used on NYT5 pages, and has a RequireJS module variant.  It can also be used in a non-RJS environment.
 
 At the moment, we are not publishing static, versioned files for inclusion anywhere.  There is, however, a minified version of the script checked in to the repository [here](https://github.com/newsdev/geoip/blob/master/dist/geoip.min.js).  To use it, add the minified code within a script tag in the relevant freeform or interactive for your project.
 
@@ -67,13 +69,13 @@ The script itself defines but does not *require* an AMD module, so to trigger it
 
 For example:
 
-```js
+```html
 <script type="text/javascript">
-/*! geoip_resolver 2015-11-03 */
-+function(a){"function"==typeof define&&define.amd?define("nytint-geoip",["jquery/nyt","underscore/nyt"],a):window.nytint_geoip=a(window.jQuery,window._)}(function(a,b){"use strict";var c,d=[],e=function(a){return b.reduce(a.split("&"),function(a,b){var c,d="geoip_";return 0===b.indexOf(d)&&(c=b.split("="),a[c[0].replace(d,"")]=c[1]),a},{})},f=e(window.location.search.slice(1)),g=function(){var b=new a.Deferred;return a(document).ready(function(){b.resolve(a("[data-geoip-match-on]"))}),b.promise()},h=function(b){a.ajax({url:"http://geoip.newsdev.nytimes.com/",dataType:"json",success:function(a){c=a.data,b.resolve(c)},error:function(){b.reject("geoip service error")}})},i=function(b){var e=new a.Deferred,f=e.promise();if(!c&&0===d.length||b)d.push(e);else{if(!c)return d[d.length-1].promise();e.resolve(c)}return d.length>0&&h(d.shift()),f},j=function(c,d,g){return g=b.isString(g)?e(g):b.isObject(g)?g:f,c=b.extend({},c||{},g),d.each(function(){var d=a(this),e=b.map((d.data("geoipMatch")||"").split(","),function(b){return a.trim(b)}),f=c[d.data("geoipMatchOn")],g=a(d.data("geoipElse"));b.contains(e,f)?(d.show(),g.hide()):(d.hide(),g.show())}),c},k=function(c,d,e){a.when(i(d),g()).done(function(a,d){var f=j(a,d,e);b.isFunction(c)&&c(f,d)})};return window.NYTINT_TESTING?k.parseOptions=e:k(),k});
+/*! geoip_resolver 2016-03-29 */
++function(a){"function"==typeof define&&define.amd?define("nytint-geoip",[],a):window.nytint_geoip=a()}(function(){"use strict";var a="nyt-geoip",b=sessionStorage,c=b?JSON.parse(b.getItem(a)):null,d=document.getElementsByTagName("html"),e=new XMLHttpRequest,f=["country_code","region","dma_code","postal_code"],g=!1,h=null,i=null;return h=function(a){return c?(i(c,a),c):(e.onload=function(b){var c=b.target,d="json"===c.responseType?c.response.data:JSON.parse(c.responseText).message;return i(d,a),d},e.onreadystatechange=function(){4===this.readyState&&200!==this.status&&console.error(this.status)},e.open("GET","http://geoip.newsdev.nytimes.com/",!0),e.responseType="json",void e.send())},i=function(c,e){if(!d)return console.error("HTML tag is missing?"),!1;if(b.setItem(a,JSON.stringify(c)),!g){for(var h,i=0;h=f[i];i++){var j=["geo",h.replace("_code",""),c[h]].join("-");d[0].classList.add(j)}g=!0}return"function"==typeof e&&e(c),c},window.NYTINT_TESTING||h(),h});
 
 require(['foundation/main'], function() {
-  require(['nytint-geoip'], {});
+  require(['nytint-geoip']);
 });
 </script>
 ```
@@ -82,21 +84,16 @@ Use the same basic format to add your own custom logic for handling the response
 
 ```js
 require(['foundation/main'], function() {
-  require(['nytint-geoip'], function(onGeoLocate) {
-    onGeoLocate(function(geoipData, taggedElements) {
-      taggedElements.each(function() {
-        if ($(this).hasClass('usa') && geoipData.country_code == 'US') {
-          $(this).css('border-color', 'redwhiteandblue');
-        }
-      });
-    });
-  });
+  require(['nytint-geoip'], function(geoip) { geoip(handler); });
+  var handler = function(d) { console.debug(d); };
 });
 ```
 
 #### Default behavior
 
-When the client-side script is instantiated on the page, it will automatically try to apply default behaviors to elements with a `data-geoip-match-on` attribute.  The value of that attribute specifies which geoip attribute to try to match against.  The accompanying `data-geoip-match` attribute should contain the value or values you are trying to match.  Elements that meet the criteria will be displayed by default, regardless of their initial state, and elements that do not will be hidden.  For a response from the geoip service that looks like this:
+When the client-side script is instantiated on the page, it will automatically apply a subset of geocoded data as classes to the `html` tag.  Styles can then be written to show/hide elements depending on geolocation per session.  
+
+For a response from the geoip service that looks like this:
 
 ```js
 {
@@ -120,42 +117,41 @@ When the client-side script is instantiated on the page, it will automatically t
 }
 ```
 
-the following will be true:
+the following will use it to control content options:
 
 ```html
-<div data-geoip-match-on="country_code" data-geoip-match="US">I will show.</div>
-<div data-geoip-match-on="country_code" data-geoip-match="US, CA, TM">I will also show.</div>
-
-<div data-geoip-match-on="country_code" data-geoip-match="VA">I will be hidden.</div>
-
-<div data-geoip-match-on="region" data-geoip-match="NY">
-  <p>This will be visible</p>
-  <p data-geoip-match-on="city" data-geoip-match="New York">And so will this.<p>
-  <p data-geoip-match-on="city" data-geoip-match="Stony Point">But not this.<p>
+<style>
+  /*default display conditions*/
+  .story[data-story-id="100000004295572"] {display: block;}
+  .story[data-story-id="100000004295573"] {display: none;}
+  /*geocoded display conditions*/
+  html.geo-dma-501 [data-story-id="100000004295572"] {display: none;}
+  html.geo-dma-501 [data-story-id="100000004295573"] {display: block;}
+</style>
+<div class="story" data-story-id="100000004295572">
+  I will be shown for other users.
 </div>
-
-<div data-geoip-match-on="longitude" data-geoip-match="-73.99240112304688">Will show too.</div>
+<div class="story" data-story-id="100000004295573">
+  I will show for users in the NYC DMA.
+</div>
 ```
 
-If you want the visibilty of one element to always be the inverse of another's (depending on the criteria defined for the latter), you can point to the former using the `data-geoip-else` attribute and using a valid jQuery selector as the value.  So for a response
-
-```js
-{
-  "response": true,
-  "data":{
-    ...
-    "country_code":"CA"
-    ...
-  },
-  "status":"ok"
-}
-```
-
-the following will be true:
+If you want the visibilty of one element to always be the inverse of another's (depending on the criteria defined for the latter), you can show/hide content with `:not()` rules within your CSS.
 
 ```html
-<div id="everyone-else">I will end up hidden</div>
-<div data-geoip-match-on="country_code" data-geoip-match="CA" style="display: none" data-geoip-else="#everyone-else">I will be shown.</div>
+<style>
+  /*default display conditions*/
+  .story[data-story-id="100000004295574"],
+  .story[data-story-id="100000004295575"],
+  .story[data-story-id="100000004295576"] {display: none;}
+  /*geocoded display conditions*/
+  html.geo-region-NY [data-story-id="100000004295574"],
+  html.geo-region-VA [data-story-id="100000004295575"],
+  html:not(.geo-region-KS) [data-story-id="100000004295576"] {display: block;}
+</style>
+<div class="story" data-story-id="100000004295574">I will show for users in NYC.</div>
+<div class="story" data-story-id="100000004295575">I will be hidden for users in NYC.</div>
+<div class="story" data-story-id="100000004295576">I will show for users not in Kansas.</div>
 ```
 
 ## Other Relevant Documentation
