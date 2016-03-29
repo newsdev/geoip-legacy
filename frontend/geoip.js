@@ -65,7 +65,7 @@
     
     //data-attr decorate html tag
     if (!processed) {
-      for (let i = 0, prop; prop = property_whitelist[i]; ++i) {
+      for (var i = 0, prop; prop = property_whitelist[i]; i++) {
         var classed = ['geo', prop.replace('_code',''), geo_data[prop]].join('-');
         dom[0].classList.add(classed);
       }
