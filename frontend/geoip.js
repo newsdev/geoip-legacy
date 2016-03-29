@@ -1,21 +1,19 @@
 +function(factory) {
   if (typeof define === 'function' && define.amd) {
-    define('nytint-geoip', ['jquery/nyt'], factory);
+    define('nytint-geoip', [], factory);
   } else {
-    window.nytint_geoip = factory(window.jQuery, window._);
+    window.nytint_geoip = factory();
   }
-}(function($) {
+}(function() {
   'use strict';
 
   var key = 'nyt-geoip',
       storage = sessionStorage, //|| localStorage
       stored_data = (storage) ? JSON.parse(storage.getItem(key)) : null,
       dom = document.getElementsByTagName('html'),
-      //api query
-      query = {
-        url: 'http://geoip.newsdev.nytimes.com/',
-        dataType: 'json'
-      },
+      //ajax
+      ajax_req = new XMLHttpRequest(),
+      results = null,
       //geoip response properties to promote
       property_whitelist = [
         'country_code',
@@ -25,33 +23,51 @@
       ],
       //flag
       processed = false,
-      //functions
-      fetch_data = null,
-      run = null,
-      complete = null;
+      fetch = null,
+      decorate = null;
 
-  run = function() {
-    //if local|sessionStorage, use it
+  fetch = function(callback) {
+    //if local|sessionStorage, use it & get out early
     if (stored_data) {
-      complete(stored_data);
+      decorate(stored_data, callback);
+      //return geoip response either way, for semi-API behavior
       return stored_data;
     }
-    //otherwise, return ajax request
-    $.ajax(query) //TODO: use native
-      .fail(function(error) { return {'status': 'geoip error'}; })
-      .done(function(response) { complete(response.data); return response.data; });
+
+    //otherwise, return XHR request results (not using jQuery on purpose)
+    //success case
+    ajax_req.onload = function(e) {
+      var r = e.target,
+          //IE handling
+          ajax_data = (r.responseType === 'json') ? r.response.data : JSON.parse(r.responseText).message;
+      decorate(ajax_data, callback);
+      //return geoip response either way, for semi-API behavior
+      return ajax_data;
+    };
+    //error case
+    ajax_req.onreadystatechange = function () {
+      if (this.readyState === 4 /*done*/ && this.status !== 200 /*success*/) { 
+        console.error(this.status);
+      }
+    };
+    //execution
+    ajax_req.open('GET', 'http://geoip.newsdev.nytimes.com/', true);
+    ajax_req.responseType = 'json';
+    ajax_req.send();
   };
 
-  complete = function(geo_data, callback) {
+  decorate = function(geo_data, callback) {
+    //nullcheck
     if (!dom) { console.error('HTML tag is missing?'); return false; }
+    
     //store
     storage.setItem(key, JSON.stringify(geo_data));
     
-    //data-attr decorate <html>
+    //data-attr decorate html tag
     if (!processed) {
       for (let i = 0, prop; prop = property_whitelist[i]; ++i) {
-        var label = 'geo-'+prop.replace('_code','');
-        dom[0].setAttribute('data-'+label, geo_data[prop]);
+        var classed = ['geo', prop.replace('_code',''), geo_data[prop]].join('-');
+        dom[0].classList.add(classed);
       }
       processed = true;
     }
@@ -61,17 +77,15 @@
       callback(geo_data);
     }
 
-    //return geoip response either way, for semi-API behavior
     return geo_data;
   };
 
-  if (!window.NYTINT_TESTING) {
-    run();
-  }
+  if (!window.NYTINT_TESTING) { fetch(); }
+  //TODO: what was this case doing?
   // else {
-  //   run.parseOptions = parseOptions;
+  //   fetch.parseOptions = parseOptions;
   // }
 
-  return run;
+  return fetch;
 
 });
