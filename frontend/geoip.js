@@ -72,14 +72,17 @@
           if ((!(stored_data || geoip_cache) && fetching.length === 0) || forceRefresh) {
             fetching.push(dfd);
           } else if (stored_data) {
+            console.debug('stored_data',stored_data);
             dfd.resolve(stored_data);
           } else if (geoip_cache) {
+            console.debug('geoip_cache',geoip_cache);
             dfd.resolve(geoip_cache);
           } else {
             return fetching[fetching.length - 1].promise();
           }
 
           if (fetching.length > 0) {
+            console.debug('querying');
             queryApi(fetching.shift());
           }
           return promise;
@@ -123,6 +126,72 @@
         } else {
           run.parseOptions = parseOptions;
         }
+
+    return run;
+
+});
+
++function (factory) {
+  if (typeof define === 'function' && define.amd) {
+    define('nytint-geoip2', ['jquery/nyt', 'underscore/nyt'], factory);
+  } else {
+    window.nytint_geoip2 = factory(window.jQuery, window._);
+  }
+}(function ($) {
+    'use strict';
+
+    var key = 'nyt-geoip',
+        storage = sessionStorage,
+        stored_data = (storage) ? JSON.parse(storage.getItem(key)) : null,
+        query = {
+          url: 'http://geoip.newsdev.nytimes.com/',
+          dataType: 'json'
+        },
+
+        fetch = function() {
+          //if local|sessionStorage, use it
+          if (stored_data) {
+            var from_storage = new $.Deferred();
+            from_storage.resolve(stored_data);
+            return from_storage;
+          }
+          //otherwise, return ajax request
+          return $.ajax(query);
+        },
+
+        run = function(callback, options) {
+          $.when(fetch())
+            .fail(function(error) {
+              console.error('geoip service error',error);
+            })
+            .done(function(response) {
+              var data = (stored_data) ? stored_data : response.data; //cleanup
+              //store
+              storage.setItem(key, JSON.stringify(data));
+              //hand off to decorator
+              var geo_data = complete(data, options);
+              //and possibly execute custom callback
+              if (typeof callback === 'function') {
+                callback(geo_data);
+              }
+            });
+        },
+
+        complete = function(geo_data, options) {
+          console.debug('complete',geo_data);
+          //convert to classes
+
+          //return geoip response either way, for semi-API behavior
+          return geo_data;
+        },
+
+        test = true;
+
+      if (!window.NYTINT_TESTING) {
+        run();
+      } else {
+        // run.parseOptions = parseOptions;
+      }
 
     return run;
 
