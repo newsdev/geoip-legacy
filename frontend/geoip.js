@@ -81,10 +81,6 @@
   };
 
   if (!window.NYTINT_TESTING) { fetch(); }
-  //TODO: what was this case doing?
-  // else {
-  //   fetch.parseOptions = parseOptions;
-  // }
 
   return fetch;
 
