@@ -17,10 +17,14 @@ A simple, Node-based service for providing geolocation data based on a user's IP
 ## Features
 
 * Capable of handling homepage traffic
+* Works with and without RequireJS
+* Decorates `<html>` tag with `geo-`patterned classes, like Modernizr and NYT5
+* Enables CSS fairly complex display rules for states before/after class logic
+* Pretty fast
 
 ## Support
 
-Please add issues to this repo on Github.
+Please add [Issues to this repo on Github](https://github.com/newsdev/geoip/issues/new).
 
 ## Local Development
 
@@ -32,15 +36,17 @@ JavaScript dependencies must be installed via NPM:
 npm install
 ```
 
-Changes should be made to `frontend/geoip.js`.  ~Please add tests to `frontend/spec/geoipSpec.js`.~ (currently not working)  
+Changes should be made to `frontend/geoip.js`.  ~Please add tests to `frontend/spec/geoipSpec.js`~ (Tests currently not working).
 
-Minify the updated script by running `grunt uglify` before checking in your changes.  
+Minify your latest version of the script by running `grunt uglify`.
 
-Once you have uglified the script, **upload it to TKTKTK**.
+Once you have uglified the script, upload it to `http://int.nyt.com/applications/geoip/geo.min.js` or `http://int.stg.nyt.com/applications/geoip/geo.min.js`.  To upload it, run `rake publish DEPLOY_HOST=[int.nyt.com or int.stg.nyt.com] AWS_CONFIG_PATH=[keys]`.
+
+For details about the keys, see the documentation in [Preview](http://newsdev.ec2.nytimes.com/preview/2016-03-21-geoip-examples/master/) [NYT ONLY].
 
 #### Tests
 
-The Jasmine tests can be run via PhantomJS using grunt: `grunt jasmine`.
+The Jasmine tests can be run via PhantomJS using grunt: `grunt jasmine` (Tests currently not working).
 
 ### Server
 
@@ -63,11 +69,9 @@ Run `npm start`.
 
 #### How to Include the JS
 
-This plugin is intended to be used on NYT5 pages, and has a RequireJS module variant.  It can also be used in a non-RJS environment.
+This plugin is intended to be used on NYT5 pages, and has a RequireJS module variant.  It can also be used in a non-RJS environment. 
 
-At the moment, we are not publishing static, versioned files for inclusion anywhere.  There is, however, a minified version of the script checked in to the repository [here](https://github.com/newsdev/geoip/blob/master/dist/geoip.min.js).  To use it, add the minified code within a script tag in the relevant freeform or interactive for your project.
-
-The script itself defines but does not *require* an AMD module, so to trigger its default behavior, add a line requiring the module:
+The script itself defines but does not *require* an AMD module, so to initialize it you need to require the module:
 
 For example:
 
