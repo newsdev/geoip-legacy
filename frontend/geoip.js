@@ -51,7 +51,9 @@
     };
     //execution
     ajax_req.open('GET', 'http://geoip.newsdev.nytimes.com/', true);
-    ajax_req.responseType = 'json';
+    try {
+      ajax_req.responseType = 'json';
+    } catch(e) { /*older safari instances doesn't like this*/ }
     ajax_req.send();
   };
 
