@@ -30,17 +30,25 @@ Please add [Issues to this repo on Github](https://github.com/newsdev/geoip/issu
 
 ### Client-side JS
 
+#### Local development
+
 JavaScript dependencies must be installed via NPM:
 
 ```
 npm install
 ```
 
-Changes should be made to `frontend/geoip.js`.  ~Please add tests to `frontend/spec/geoipSpec.js`~ (Tests currently not working).
+Changes should be made to `frontend/geoip.js`.
+
+~~Please add tests to `frontend/spec/geoipSpec.js`~~ (Tests currently not working).
+
+#### Publishing
 
 Minify your latest version of the script by running `grunt uglify`.
 
-Once you have uglified the script, upload it to `http://int.nyt.com/applications/geoip/geo.min.js` or `http://int.stg.nyt.com/applications/geoip/geo.min.js`.  To upload it, run `rake publish DEPLOY_HOST=[int.nyt.com or int.stg.nyt.com] AWS_CONFIG_PATH=[keys]`.
+Once you have uglified the script, upload it to `http://int.nyt.com/applications/geoip/geo.min.js` or `http://int.stg.nyt.com/applications/geoip/geo.min.js`.  
+
+To upload it, run `rake publish DEPLOY_HOST=[int.nyt.com or int.stg.nyt.com] AWS_CONFIG_PATH=[keys]`.
 
 For details about the keys, see the documentation in [Preview](http://newsdev.ec2.nytimes.com/preview/2016-03-21-geoip-examples/master/) [NYT ONLY].
 
@@ -48,7 +56,7 @@ For details about the keys, see the documentation in [Preview](http://newsdev.ec
 
 The Jasmine tests can be run via PhantomJS using grunt: `grunt jasmine` (Tests currently not working).
 
-### Server
+## Server
 
 
 #### On OS X
