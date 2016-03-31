@@ -8,46 +8,45 @@
   'use strict';
 
   var key = 'nyt-geoip',
-      storage = sessionStorage, //|| localStorage
-      stored_data = (storage) ? JSON.parse(storage.getItem(key)) : null,
       dom = document.getElementsByTagName('html'),
-      //ajax
-      ajax_req = new XMLHttpRequest(),
-      results = null,
+      //flag
+      already_processed = false,
       //geoip response properties to promote
       property_whitelist = [
         'country_code',
         'region',
         'dma_code',
         'postal_code'
-      ],
-      //flag
-      processed = false,
-      fetch = null,
-      decorate = null;
+      ];
 
-  fetch = function(callback) {
+  var fetch = function(callback) {
+    var ajax_req = new XMLHttpRequest(),
+        stored_data = null,
+        ajax_data = null;
     //if local|sessionStorage, use it & get out early
-    if (stored_data) {
-      decorate(stored_data, callback);
-      //return geoip response either way, for semi-API behavior
-      return stored_data;
-    }
+    try {
+      stored_data = JSON.parse(sessionStorage.getItem(key));
+      if (stored_data && stored_data.country_code !== undefined) {
+        decorate(stored_data, callback);
+        //return geoip response either way, for semi-API behavior
+        return stored_data;
+      }
+    } catch(e) { /*console.warn('no sessionStorage');*/ }
 
     //otherwise, return XHR request results (not using jQuery on purpose)
     //success case
     ajax_req.onload = function(e) {
-      var r = e.target,
-          //IE handling
-          ajax_data = (r.responseType === 'json') ? r.response.data : JSON.parse(r.responseText).message;
+      if (!e.target) { return false; } //nullcheck
+      ajax_data = parse_response(e.target);
+      if (typeof ajax_data === 'undefined') { return false;} //nullcheck
       decorate(ajax_data, callback);
       //return geoip response either way, for semi-API behavior
       return ajax_data;
     };
     //error case
     ajax_req.onreadystatechange = function () {
-      if (this.readyState === 4 /*done*/ && this.status !== 200 /*success*/) { 
-        console.error(this.status);
+      if (ajax_req.readyState === 4 /*done*/ && ajax_req.status !== 200 /*success*/) { 
+        console.error(ajax_req.status);
       }
     };
     //execution
@@ -56,20 +55,44 @@
     ajax_req.send();
   };
 
-  decorate = function(geo_data, callback) {
+  var parse_response = function (xhr) {
+    var data = null;
+    switch (true) {
+      //modern browsers
+      case (xhr.responseType === 'json'): //latest
+        data = xhr.response.data;
+        break;
+      //IEs
+      case (xhr.response !== null): //IE latest
+        data = JSON.parse(xhr.response).data;
+        break;
+      case (xhr.responseText !== null): //IE old (minor case)
+        data = JSON.parse(xhr.responseText).message
+        break;
+    };
+    //one more nullcheck
+    return (data !== undefined) ? data : null;
+  };
+
+  var decorate = function(geo_data, callback) {
     //nullcheck
     if (!dom) { console.error('HTML tag is missing?'); return false; }
     
     //store
-    storage.setItem(key, JSON.stringify(geo_data));
+    try {
+      sessionStorage.setItem(key, JSON.stringify(geo_data));
+    } catch(e) { 
+      console.warn('no sessionStorage'); 
+    }
     
     //data-attr decorate html tag
-    if (!processed) {
+    if (geo_data !== undefined && !already_processed) {
       for (var i = 0, prop; prop = property_whitelist[i]; i++) {
+        if (geo_data[prop] === undefined) { return null; }
         var classed = ['geo', prop.replace('_code',''), geo_data[prop]].join('-');
         dom[0].classList.add(classed);
       }
-      processed = true;
+      already_processed = true;
     }
 
     //call callback, if included
@@ -83,5 +106,4 @@
   if (!window.NYTINT_TESTING) { fetch(); }
 
   return fetch;
-
 });

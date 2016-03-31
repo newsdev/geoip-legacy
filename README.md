@@ -34,7 +34,9 @@ npm install
 
 Changes should be made to `frontend/geoip.js`.  ~Please add tests to `frontend/spec/geoipSpec.js`.~ (currently not working)  
 
-Minify the updated script by running `grunt uglify` before checking in your changes.
+Minify the updated script by running `grunt uglify` before checking in your changes.  
+
+Once you have uglified the script, **upload it to TKTKTK**.
 
 #### Tests
 
@@ -70,23 +72,26 @@ The script itself defines but does not *require* an AMD module, so to trigger it
 For example:
 
 ```html
+<script type="text/javascript" src="...TK_path_to_service/geoip.js"></script>
 <script type="text/javascript">
-/*! geoip_resolver 2016-03-29 */
-+function(a){"function"==typeof define&&define.amd?define("nytint-geoip",[],a):window.nytint_geoip=a()}(function(){"use strict";var a="nyt-geoip",b=sessionStorage,c=b?JSON.parse(b.getItem(a)):null,d=document.getElementsByTagName("html"),e=new XMLHttpRequest,f=["country_code","region","dma_code","postal_code"],g=!1,h=null,i=null;return h=function(a){return c?(i(c,a),c):(e.onload=function(b){var c=b.target,d="json"===c.responseType?c.response.data:JSON.parse(c.responseText).message;return i(d,a),d},e.onreadystatechange=function(){4===this.readyState&&200!==this.status&&console.error(this.status)},e.open("GET","http://geoip.newsdev.nytimes.com/",!0),e.responseType="json",void e.send())},i=function(c,e){if(!d)return console.error("HTML tag is missing?"),!1;if(b.setItem(a,JSON.stringify(c)),!g){for(var h,i=0;h=f[i];i++){var j=["geo",h.replace("_code",""),c[h]].join("-");d[0].classList.add(j)}g=!0}return"function"==typeof e&&e(c),c},window.NYTINT_TESTING||h(),h});
-
-require(['foundation/main'], function() {
-  require(['nytint-geoip']);
-});
+(function() { require(['nytint-geoip']); })();
 </script>
 ```
 
 Use the same basic format to add your own custom logic for handling the response from our geoip service:
 
-```js
-require(['foundation/main'], function() {
-  require(['nytint-geoip'], function(geoip) { geoip(handler); });
-  var handler = function(d) { console.debug(d); };
-});
+```html
+<script type="text/javascript" src="...TK_path_to_service/geoip.js"></script>
+<script type="text/javascript">
+(function() {
+  require(['nytint-geoip'], function(geoip) { 
+    geoip(handler);
+  });
+  var handler = function(d) {
+    console.log('lat/lon',d.latitude, d.longitude);
+  };
+})();
+</script>
 ```
 
 #### Default behavior
@@ -95,7 +100,7 @@ When the client-side script is instantiated on the page, it will automatically a
 
 For a response from the geoip service that looks like this:
 
-```js
+```json
 {
   "response": true,
   "data":{
@@ -128,12 +133,14 @@ the following will use it to control content options:
   html.geo-dma-501 [data-story-id="100000004295572"] {display: none;}
   html.geo-dma-501 [data-story-id="100000004295573"] {display: block;}
 </style>
-<div class="story" data-story-id="100000004295572">
-  I will be shown for other users.
-</div>
-<div class="story" data-story-id="100000004295573">
-  I will show for users in the NYC DMA.
-</div>
+<div class="story" data-story-id="100000004295572">I will be shown for other readers.</div>
+<div class="story" data-story-id="100000004295573">I will show for readers in the NYC DMA.</div>
+<script type="text/javascript" src="...TK_path_to_service/geoip.js"></script>
+<script type="text/javascript">
+(function() {
+  require(['nytint-geoip']);
+})();
+</script>
 ```
 
 If you want the visibilty of one element to always be the inverse of another's (depending on the criteria defined for the latter), you can show/hide content with `:not()` rules within your CSS.
@@ -149,9 +156,15 @@ If you want the visibilty of one element to always be the inverse of another's (
   html.geo-region-VA [data-story-id="100000004295575"],
   html:not(.geo-region-KS) [data-story-id="100000004295576"] {display: block;}
 </style>
-<div class="story" data-story-id="100000004295574">I will show for users in NYC.</div>
-<div class="story" data-story-id="100000004295575">I will be hidden for users in NYC.</div>
-<div class="story" data-story-id="100000004295576">I will show for users not in Kansas.</div>
+<div class="story" data-story-id="100000004295574">I will show for readers in NYC.</div>
+<div class="story" data-story-id="100000004295575">I will be hidden for readers in NYC.</div>
+<div class="story" data-story-id="100000004295576">I will show for readers not in Kansas.</div>
+<script type="text/javascript" src="frontend/geoip.js"></script>
+<script>
+(function() { 
+  require(['nytint-geoip']);
+})();
+</script>
 ```
 
 ## Other Relevant Documentation
