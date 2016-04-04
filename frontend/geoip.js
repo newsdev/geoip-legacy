@@ -1,122 +1,122 @@
-+function (factory) {
++function(factory) {
   if (typeof define === 'function' && define.amd) {
-    define('nytint-geoip', ['jquery/nyt', 'underscore/nyt'], factory);
+    define('nytint-geoip', [], factory);
   } else {
-    window.nytint_geoip = factory(window.jQuery, window._);
+    window.nytint_geoip = factory();
   }
-}(function ($, _) {
+}(function() {
+  'use strict';
 
-    'use strict';
+  var key = 'nyt-geoip',
+      dom = document.getElementsByTagName('html'),
+      //flag
+      already_processed = false,
+      //geoip response properties to promote
+      property_whitelist = [
+        'continent_code',
+        'country_code',
+        'region',
+        'dma_code',
+        'postal_code',
+        'time_zone' //TODO: replace with timezone_code, once available
+      ];
 
-    /*
-    Data attributes:
-      geoip-match
-        valid values:
-          string codes consistent with values for specified data-geoip-match-on
-      data-geoip-match-on
-        valid values:
-          area_code, city, continent_code, country_code, country_code3, country_name, dma_code, latitude, longitude, metro_code, postal_code, region, time_zone
-      data-geoip-else
-        valid values:
-          jquery selector specifying the element(s) to show if specified match conditions are NOT met
+  var fetch = function(callback) {
+    var ajax_req = new XMLHttpRequest(),
+        stored_data = null,
+        ajax_data = null;
+    //if local|sessionStorage, use it & get out early
+    try {
+      stored_data = JSON.parse(sessionStorage.getItem(key));
+      if (stored_data && stored_data.country_code !== undefined) {
+        decorate(stored_data, callback);
+        //return geoip response either way, for semi-API behavior
+        return stored_data;
+      }
+    } catch(e) { /*console.warn('no sessionStorage');*/ }
 
-    */
+    //otherwise, return XHR request results (not using jQuery on purpose)
+    //success case
+    ajax_req.onload = function(e) {
+      if (!e.target) { return false; } //nullcheck
+      ajax_data = parse_response(e.target);
+      if (typeof ajax_data === 'undefined') { return false;} //nullcheck
+      decorate(ajax_data, callback);
+      //return geoip response either way, for semi-API behavior
+      return ajax_data;
+    };
+    //error case
+    ajax_req.onreadystatechange = function () {
+      if (ajax_req.readyState === 4 /*done*/ && ajax_req.status !== 200 /*success*/) { 
+        console.error(ajax_req.status);
+      }
+    };
+    //execution
+    ajax_req.open('GET', 'http://geoip.newsdev.nytimes.com/', true);
+    try {
+      ajax_req.responseType = 'json';
+    } catch(e) { /*older safari instances doesn't like this*/ }
+    ajax_req.send();
+  };
 
-    var geoip_cache,
-        fetching = [],
+  var parse_response = function (xhr) {
+    var data = null;
+    switch (true) {
+      //modern browsers
+      case (xhr.responseType === 'json'): //latest
+        data = xhr.response.data;
+        break;
+      //IEs
+      case (xhr.response !== null): //IE latest
+        data = JSON.parse(xhr.response).data;
+        break;
+      case (xhr.responseText !== null): //IE old (minor case)
+        data = JSON.parse(xhr.responseText).message
+        break;
+    };
+    //one more nullcheck
+    return (data !== undefined) ? data : null;
+  };
 
-        parseOptions = function(qs) {
-          return _.reduce(qs.split('&'), function(memo, params) {
-            var prefix = 'geoip_',
-                parts;
-            if (params.indexOf(prefix) === 0) {
-              parts = params.split('=');
-              memo[parts[0].replace(prefix, '')] = parts[1];
-            }
-            return memo;
-          }, {});
-        },
+  var decorate = function(geo_data, callback) {
+    //nullcheck
+    if (!dom) { console.error('HTML tag is missing?'); return false; }
+    
+    //store
+    try {
+      sessionStorage.setItem(key, JSON.stringify(geo_data));
+    } catch(e) { 
+      console.warn('no sessionStorage'); 
+    }
+    
+    //data-attr decorate html tag
+    if (geo_data !== undefined && !already_processed) {
+      for (var i = 0, prop; prop = property_whitelist[i]; i++) {
+        if (geo_data[prop] === undefined) { return null; }
+        var classed = ['geo', prop_clean(prop), geo_data[prop]].join('-');
+        dom[0].classList.add(classed);
+      }
+      already_processed = true;
+    }
 
-        qsOptions = parseOptions(window.location.search.slice(1)),
+    //call callback, if included
+    if (typeof callback === 'function') {
+      callback(geo_data);
+    }
 
-        ready = function() {
-          var dfd = new $.Deferred();
-          $(document).ready(function() {
-            dfd.resolve($('[data-geoip-match-on]'));
-          });
-          return dfd.promise();
-        },
+    return geo_data;
+  };
 
-        queryApi = function(dfd) {
-          $.ajax({
-            url: 'http://geoip.newsdev.nytimes.com/',
-            dataType: 'json',
-            success: function(response) {
-              geoip_cache = response.data;
-              dfd.resolve(geoip_cache);
-            },
-            error: function() {
-              dfd.reject('geoip service error');
-            }
-          });
-        },
+  var prop_clean = function(prop) {
+    var cleaned = prop;
+    switch (true) {
+      case (prop.indexOf('_code') >= 0): cleaned = prop.replace('_code',''); break;
+      case (prop.indexOf('_zone') >= 0): cleaned = prop.replace('_zone','zone'); break;
+    }
+    return cleaned;
+  };
 
-        fetch = function(forceRefresh) {
-          var dfd = new $.Deferred(),
-              promise = dfd.promise();
+  if (!window.NYTINT_TESTING) { fetch(); }
 
-          if ((!geoip_cache && fetching.length === 0) || forceRefresh) {
-            fetching.push(dfd);
-          } else if (geoip_cache) {
-            dfd.resolve(geoip_cache);
-          } else {
-            return fetching[fetching.length - 1].promise();
-          }
-          if (fetching.length > 0) {
-            queryApi(fetching.shift());
-          }
-          return promise;
-        },
-
-        complete = function(geoipData, $elems, options) {
-          options = (_.isString(options)) ? parseOptions(options) :
-            (_.isObject(options) ? options : qsOptions);
-          geoipData = _.extend({}, geoipData || {}, options);
-          // by default hides elements that don't match, shows those that do.
-          $elems.each(function() {
-            var $this = $(this),
-                match = _.map(($this.data('geoipMatch') || '').toString().split(','), function(e) { return $.trim(e); }),
-                matchOn = geoipData[$this.data('geoipMatchOn')],
-                $else = $($this.data('geoipElse'));
-            if (matchOn) {
-              matchOn = matchOn.toString();
-              if (_.contains(match, matchOn)) {
-                $this.show();
-                $else.hide();
-              } else {
-                $this.hide();
-                $else.show();
-              }
-            }
-          });
-          return geoipData;
-        },
-
-        run = function(callback, forceRefresh, options) {
-          $.when(fetch(forceRefresh), ready()).done(function(geoipData, $elems) {
-            var modifiedGeo = complete(geoipData, $elems, options);
-            if (_.isFunction(callback)) {
-              callback(modifiedGeo, $elems);
-            }
-          });
-        };
-
-        if(!window.NYTINT_TESTING) {
-          run();
-        } else {
-          run.parseOptions = parseOptions;
-        }
-
-    return run;
-
+  return fetch;
 });
