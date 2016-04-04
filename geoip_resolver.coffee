@@ -3,6 +3,7 @@ http = require 'http'
 url = require 'url'
 fs = require 'fs'
 zlib = require 'zlib'
+moment = require 'moment'
 
 throw "You must supply a ORIGIN_RE ENV var!" if !process.env.ORIGIN_RE?
 origin_re = new RegExp process.env.ORIGIN_RE
