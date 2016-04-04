@@ -13,10 +13,12 @@
       already_processed = false,
       //geoip response properties to promote
       property_whitelist = [
+        'continent_code',
         'country_code',
         'region',
         'dma_code',
-        'postal_code'
+        'postal_code',
+        'time_zone' //TODO: replace with timezone_code, once available
       ];
 
   var fetch = function(callback) {
@@ -91,7 +93,7 @@
     if (geo_data !== undefined && !already_processed) {
       for (var i = 0, prop; prop = property_whitelist[i]; i++) {
         if (geo_data[prop] === undefined) { return null; }
-        var classed = ['geo', prop.replace('_code',''), geo_data[prop]].join('-');
+        var classed = ['geo', prop_clean(prop), geo_data[prop]].join('-');
         dom[0].classList.add(classed);
       }
       already_processed = true;
@@ -103,6 +105,15 @@
     }
 
     return geo_data;
+  };
+
+  var prop_clean = function(prop) {
+    var cleaned = prop;
+    switch (true) {
+      case (prop.indexOf('_code') >= 0): cleaned = prop.replace('_code',''); break;
+      case (prop.indexOf('_zone') >= 0): cleaned = prop.replace('_zone','zone'); break;
+    }
+    return cleaned;
   };
 
   if (!window.NYTINT_TESTING) { fetch(); }
