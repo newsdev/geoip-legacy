@@ -3,13 +3,14 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-  	"start": "coffee geoip_resolver.coffee"
-	},
+    "start": "coffee geoip_resolver.coffee"
+  },
   "dependencies": {
     "coffee-script": "1.10.0",
+    "moment": "^2.12.0",
     "geoip": "0.6.1",
     "grunt": "~0.4.5",
-    "grunt-contrib-uglify": "~0.10.0",
-    "grunt-contrib-jasmine": "~1.0.0"
+    "grunt-contrib-jasmine": "~1.0.0",
+    "grunt-contrib-uglify": "~0.10.0"
   }
 }
