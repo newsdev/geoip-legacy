@@ -54,7 +54,7 @@ For details about the keys, see the documentation in [Preview](http://newsdev.ec
 
 #### Tests
 
-The Jasmine tests can be run via PhantomJS using grunt: `grunt jasmine` (Tests currently not working).
+~~The Jasmine tests can be run via PhantomJS using grunt: `grunt jasmine`.~~ (Tests currently not working).
 
 ## Server
 
