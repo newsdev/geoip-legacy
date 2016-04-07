@@ -24,7 +24,7 @@ http.get {
     require('child_process').exec "tar -xzOf GeoIPCity.tar.gz --wildcards '*/GeoIPCity.dat' > GeoIPCity.dat", (err) ->
       throw err if err
       lookup = new geoip.City './GeoIPCity.dat'
-      console .log "lookup service ready"
+      console .log "lookup service ready v1.1"
 
       server = http.createServer (request, res) ->
         
@@ -67,11 +67,15 @@ http.get {
 
               # Insure there was a valid response
               if citydata
-                # add abbreviated timezone
-                console .log citydata
-                # citydata.tz = moment.zoneAbbr(citydata.time_zone)
+                citydata.tz = citydata.time_zone
+                # add abbreviated timezone if in the U.S.
+                if citydata && citydata.time_zone.indexOf('America/') >= 0
+                  citydata.tz = moment.zoneAbbr(citydata.time_zone).replace(/(?:S|D)/,'')
+                  console .log "has timezone"
+                  console .log citydata.tz
                 
                 #lookup fips
+                console .log "has citydata"
                 # TODO
                 
                 # finalize as response
@@ -106,7 +110,7 @@ http.get {
         res.end()
         
       server.listen 80, ->
-        console.log "server listening on :80"
+        console .log "server listening on :80"
 
 .on 'error', (err) ->
   throw err
