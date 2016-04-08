@@ -84,7 +84,7 @@ http.get {
 
                 if zips
                   fip = zips.filter (fip) -> fip.split(',')[0] is citydata.postal_code
-                  console .log fip
+                  console .log fip.split(',')[3]
 
                 #mark intranet/extranet
                 #TODO console .log "has citydata"
