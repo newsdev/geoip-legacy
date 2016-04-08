@@ -24,9 +24,21 @@ http.get {
   response.on 'end', (res) ->
     require('child_process').exec "tar -xzOf GeoIPCity.tar.gz --wildcards '*/GeoIPCity.dat' > GeoIPCity.dat", (err) ->
       throw err if err
-      lookup = new geoip.City './GeoIPCity.dat'
-      console .log "lookup service ready v1.2"
 
+      #maxmind lookup
+      lookup = new geoip.City './GeoIPCity.dat'
+      
+      #lookup fips
+      fipsfile = fs.readFileSync 'data/fips.csv', "utf8"
+      zips = fipsfile.split("\n")
+      fips = {}
+      zips.map (fip) ->
+        f = fip.split(',')
+        fips[f[0]] = { city: f[1], county: f[2], geoid: f[3].replace(/\r/,'') }
+
+      #command-line debugging/versioning
+      console .log "lookup service ready v0.0.3"
+      
       server = http.createServer (request, res) ->
         
         # No request is cachable
@@ -66,17 +78,24 @@ http.get {
               # Run the actual lookup
               citydata = lookup.lookupSync ip
 
-              # Insure there was a valid response
+              # Ensure there was a valid response
               if citydata
-                citydata.zone_abbr = citydata.time_zone
-                # add abbreviated timezone if in the U.S.
-                if citydata && citydata.zone_abbr.indexOf('America/') >= 0
-                  citydata.zone_abbr = moment_timezone.tz(citydata.zone_abbr).zoneAbbr()
-                  citydata.zone_abbr = citydata.zone_abbr.replace(/(?:S|D)/,'')
+
+                # add abbreviated timezone when in the U.S.
+                if citydata.time_zone.match(/^America\//)
+                  full_abbr = moment_timezone.tz(citydata.time_zone).zoneAbbr()
+                  citydata.zone_abbr = full_abbr.replace(/(?:S|D)/,'')
                 
-                #lookup fips
-                # console .log "has citydata"
-                # TODO
+                # add the matching fips codes for the postal code in the US
+                if citydata.country_code == 'US'
+                  zip_to_fips = fips[citydata.postal_code]
+                  citydata.fip_city = zip_to_fips.city
+                  citydata.fip_county = zip_to_fips.county
+                  citydata.fip_geoid = zip_to_fips.geoid
+
+                #mark intranet/extranet
+                #TODO console .log "has citydata"
+                # citydata.intranet = false
                 
                 # finalize as response
                 responseObj.data = citydata

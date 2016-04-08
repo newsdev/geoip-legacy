@@ -46,7 +46,7 @@ Changes should be made to `frontend/geoip.js`.
 
 Minify your latest version of the script by running `grunt uglify`.
 
-Once you have uglified the script, upload it to `http://int.nyt.com/applications/geoip/geo.min.js` or `http://int.stg.nyt.com/applications/geoip/geo.min.js`.  
+Once you have uglified the script, upload it to `https://int.nyt.com/applications/geoip/geo.min.js` or `http://int.stg.nyt.com/applications/geoip/geo.min.js`.  
 
 To upload it, run `rake publish DEPLOY_HOST=[int.nyt.com or int.stg.nyt.com] AWS_CONFIG_PATH=[keys]`.
 
@@ -94,7 +94,7 @@ The script itself defines but does not *require* an AMD module, so to initialize
 For example:
 
 ```html
-<script type="text/javascript" src="http://int.nyt.com/applications/geoip/geo.min.js"></script>
+<script type="text/javascript" src="https://int.nyt.com/applications/geoip/geo.min.js"></script>
 <script type="text/javascript">
 (function() { require(['nytint-geoip']); })();
 </script>
@@ -103,7 +103,7 @@ For example:
 Use the same basic format to add your own custom logic for handling the response from our geoip service:
 
 ```html
-<script type="text/javascript" src="http://int.nyt.com/applications/geoip/geo.min.js"></script>
+<script type="text/javascript" src="https://int.nyt.com/applications/geoip/geo.min.js"></script>
 <script type="text/javascript">
 (function() {
   require(['nytint-geoip'], function(geoip) { 
@@ -157,7 +157,7 @@ the following will use it to control content options:
 </style>
 <div class="story" data-story-id="100000004295572">I will be shown for other readers.</div>
 <div class="story" data-story-id="100000004295573">I will show for readers in the NYC DMA.</div>
-<script type="text/javascript" src="http://int.nyt.com/applications/geoip/geo.min.js"></script>
+<script type="text/javascript" src="https://int.nyt.com/applications/geoip/geo.min.js"></script>
 <script type="text/javascript">
 (function() {
   require(['nytint-geoip']);
@@ -181,7 +181,7 @@ If you want the visibilty of one element to always be the inverse of another's (
 <div class="story" data-story-id="100000004295574">I will show for readers in NYC.</div>
 <div class="story" data-story-id="100000004295575">I will be hidden for readers in NYC.</div>
 <div class="story" data-story-id="100000004295576">I will show for readers not in Kansas.</div>
-<script type="text/javascript" src="http://int.nyt.com/applications/geoip/geo.min.js"></script>
+<script type="text/javascript" src="https://int.nyt.com/applications/geoip/geo.min.js"></script>
 <script>
 (function() { 
   require(['nytint-geoip']);
