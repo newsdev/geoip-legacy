@@ -4,6 +4,7 @@ url = require 'url'
 fs = require 'fs'
 zlib = require 'zlib'
 moment = require 'moment'
+moment_timezone = require 'moment-timezone'
 
 throw "You must supply a ORIGIN_RE ENV var!" if !process.env.ORIGIN_RE?
 origin_re = new RegExp process.env.ORIGIN_RE
@@ -72,7 +73,7 @@ http.get {
                 # add abbreviated timezone if in the U.S.
                 if citydata && citydata.time_zone.indexOf('America/') >= 0
                   console .log moment.version
-                  citydata.tz = moment.zoneAbbr(citydata.time_zone)
+                  citydata.tz = moment_timezone.tz(citydata.time_zone).zoneAbbr()
                   if citydata.tz
                     console .log citydata.replace(/(?:S|D)/,'')
                     # citydata.tz = citydata.replace(/(?:S|D)/,'')
