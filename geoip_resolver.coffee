@@ -80,16 +80,15 @@ http.get {
                 fipsfile = null
 
                 fipsfile = fs.readFileSync 'data/fips.csv', "utf8"
-                if fipsfile
-                  zips = fipsfile.split("\n")
-                  console .log zips.length
+                zips = fipsfile.split("\n")
+                console .log zips.length
 
-                  if zips
-                    opts = zips.map (fip) ->
-                      if fip.indexOf('10018') >= 0
-                        console .log fip
-
-                      # fip.map (code) -> fip.split(',')
+                if zips
+                  match_line = zips.select (fip) ->
+                    fip.indexOf(citydata.postal_code) >= 0
+                  
+                  match_line = match_line.split(',') if match_line
+                  console .log match_line
 
                 #mark intranet/extranet
                 #TODO console .log "has citydata"
