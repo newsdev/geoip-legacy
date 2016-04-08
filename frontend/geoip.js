@@ -18,7 +18,8 @@
         'region',
         'dma_code',
         'postal_code',
-        'time_zone' //TODO: replace with timezone_code, once available
+        'time_zone',
+        'zone_abbr'
       ];
 
   var fetch = function(callback) {
@@ -110,8 +111,9 @@
   var prop_clean = function(prop) {
     var cleaned = prop;
     switch (true) {
-      case (prop.indexOf('_code') >= 0): cleaned = prop.replace('_code',''); break;
+      case (prop.indexOf('zone_abbr') >= 0): cleaned = prop.replace('zone_abbr','timezone'); break;
       case (prop.indexOf('_zone') >= 0): cleaned = prop.replace('_zone','zone'); break;
+      case (prop.indexOf('_code') >= 0): cleaned = prop.replace('_code',''); break;
     }
     return cleaned;
   };
