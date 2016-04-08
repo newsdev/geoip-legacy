@@ -25,7 +25,7 @@ http.get {
     require('child_process').exec "tar -xzOf GeoIPCity.tar.gz --wildcards '*/GeoIPCity.dat' > GeoIPCity.dat", (err) ->
       throw err if err
       lookup = new geoip.City './GeoIPCity.dat'
-      console .log "lookup service ready v1.1"
+      console .log "lookup service ready v1.2"
 
       server = http.createServer (request, res) ->
         
@@ -72,9 +72,7 @@ http.get {
                 # add abbreviated timezone if in the U.S.
                 if citydata && citydata.zone_abbr.indexOf('America/') >= 0
                   citydata.zone_abbr = moment_timezone.tz(citydata.zone_abbr).zoneAbbr()
-                  #reduce to sanest version
-                  if citydata.zone_abbr
-                    citydata.zone_abbr = citydata.replace(/(?:S|D)/,'')
+                  citydata.zone_abbr = citydata.replace(/(?:S|D)/,'')
                 
                 #lookup fips
                 # console .log "has citydata"
