@@ -83,7 +83,7 @@ http.get {
                 zips = fipsfile.split("\n")
 
                 if zips
-                  fip = zips.filter (fip) -> fip.split(',')[0] === citydata.postal_code
+                  fip = zips.filter (fip) -> fip.split(',')[0] is citydata.postal_code
                   console .log fip
 
                 #mark intranet/extranet
