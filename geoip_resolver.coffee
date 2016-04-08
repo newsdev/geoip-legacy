@@ -94,8 +94,7 @@ http.get {
                   citydata.fip_geoid = zip_to_fips.geoid
 
                 #mark intranet/extranet
-                #TODO console .log "has citydata"
-                # citydata.intranet = false
+                citydata.intranet = false
                 
                 # finalize as response
                 responseObj.data = citydata
