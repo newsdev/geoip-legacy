@@ -17,6 +17,7 @@ http.get {
   }, (response) ->
 
   tarfile = fs.createWriteStream './GeoIPCity.tar.gz'
+  fs.readFile 'data.txt', (err, data) -> fileText = fipsfile
 
   response.on 'data', (chunk) ->
     tarfile.write chunk, encoding: 'binary'
@@ -25,7 +26,7 @@ http.get {
     require('child_process').exec "tar -xzOf GeoIPCity.tar.gz --wildcards '*/GeoIPCity.dat' > GeoIPCity.dat", (err) ->
       throw err if err
       lookup = new geoip.City './GeoIPCity.dat'
-      console .log "lookup service ready v1.2"
+      console .log "lookup service ready v1.3"
 
       server = http.createServer (request, res) ->
         
@@ -75,12 +76,12 @@ http.get {
                   citydata.zone_abbr = citydata.zone_abbr.replace(/(?:S|D)/,'')
                 
                 #lookup fips
-                # console .log "has citydata"
-                # TODO
+                citydata.fips = null
+                console .log fipsfile.length
 
                 #mark intranet/extranet
-                # console .log "has citydata"
-                # TODO
+                #TODO console .log "has citydata"
+                citydata.intranet = false
                 
                 # finalize as response
                 responseObj.data = citydata
