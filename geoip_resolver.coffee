@@ -77,13 +77,13 @@ http.get {
                 #lookup fips
                 citydata.fips = null
                 fipsfile = null
-                fs.readFile('/data/fips.csv', (err, data) => {
+                fs.readFile('/data/fips.csv', (err, data) ->
                   if err 
                     throw err
                   console .log 'successful readFile'
                   console .log data.length
                   fipsfile = data
-                });
+                
 
                 if fipsfile
                   console .log 'fips'
