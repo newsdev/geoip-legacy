@@ -79,16 +79,17 @@ http.get {
                 citydata.fips = null
                 fipsfile = null
 
-                contents = fs.readFileSync 'data/fips.csv', "utf8"
-                if contents
+                fipsfile = fs.readFileSync 'data/fips.csv', "utf8"
+                if fipsfile
                   zips = contents.split("\n")
+                  console .log fipsfile.length
 
                   if zips
-                    # zips = zips.map (str) -> str[1 .. str.length - 2]
-                    console.log zips.length
-
-                  if fipsfile
-                    console .log fipsfile.length
+                    zips = fipsfile.map (fip) ->
+                      if fip.indexOf('10018') >= 0
+                        console .log fip
+                      
+                      # fip.map (code) -> fip.split(',')
 
                 #mark intranet/extranet
                 #TODO console .log "has citydata"
