@@ -79,10 +79,10 @@ http.get {
                 citydata.fips = null
                 fipsfile = null
                 get_fips = ->
-                  fs.readFileSync '/data/fips.csv', (err, fips) ->
+                  fs.readFileSync '/data/fips.csv', (err, data) ->
                     throw err if err
                     console .log 'successful readFile'
-                    console .log fips.length
+                    console .log data.length
                     # fipsfile = fips
 
                 console .log get_fips()
