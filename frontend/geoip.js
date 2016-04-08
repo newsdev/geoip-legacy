@@ -81,19 +81,19 @@
 
   var decorate = function(geo_data, callback) {
     //nullcheck
-    if (!dom) { console.error('HTML tag is missing?'); return false; }
+    if (!dom) { /*console.warn('<html> is missing. Fun!');*/ return false; }
     
     //store
     try {
       sessionStorage.setItem(key, JSON.stringify(geo_data));
     } catch(e) { 
-      console.warn('no sessionStorage'); 
+      /*console.warn('no sessionStorage available');*/ 
     }
     
     //data-attr decorate html tag
     if (geo_data !== undefined && !already_processed) {
       for (var i = 0, prop; prop = property_whitelist[i]; i++) {
-        if (geo_data[prop] === undefined) { return null; }
+        if (geo_data[prop] === undefined) { /*console.warn('no data for',prop);*/ return null; }
         var classed = ['geo', prop_clean(prop), geo_data[prop]].join('-');
         dom[0].classList.add(classed);
       }
@@ -111,7 +111,7 @@
   var prop_clean = function(prop) {
     var cleaned = prop;
     switch (true) {
-      case (prop.indexOf('zone_abbr') >= 0): cleaned = prop.replace('zone_abbr','timezone'); break;
+      case (prop.indexOf('zone_abbr') >= 0): cleaned = prop.replace('zone_abbr','us-timezone'); break;
       case (prop.indexOf('_zone') >= 0): cleaned = prop.replace('_zone','zone'); break;
       case (prop.indexOf('_code') >= 0): cleaned = prop.replace('_code',''); break;
     }

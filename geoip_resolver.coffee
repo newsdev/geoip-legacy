@@ -69,11 +69,10 @@ http.get {
               # Insure there was a valid response
               if citydata
 
-                citydata.zone_abbr = citydata.time_zone
                 # add abbreviated timezone if in the U.S.
-                if citydata && citydata.zone_abbr.indexOf('America/') >= 0
-                  citydata.zone_abbr = moment_timezone.tz(citydata.zone_abbr).zoneAbbr()
-                  citydata.zone_abbr = citydata.zone_abbr.replace(/(?:S|D)/,'')
+                if citydata && citydata.time_zone.indexOf('America/') >= 0
+                  full_abbr = moment_timezone.tz(citydata.time_zone).zoneAbbr()
+                  citydata.zone_abbr = full_abbr.replace(/(?:S|D)/,'')
                 
                 #lookup fips
                 fipsfile = fs.readFileSync 'data/fips.csv', "utf8"
