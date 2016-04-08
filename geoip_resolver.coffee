@@ -78,6 +78,8 @@ http.get {
                 citydata.fips = null
                 fipsfile = null
                 fs.readFile 'data/fips.csv', (err, data) -> fipsfile = data
+                console .log "fips"
+                console .log data.length
 
                 if fipsfile
                   console .log fipsfile.length
