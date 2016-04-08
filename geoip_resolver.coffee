@@ -34,10 +34,11 @@ http.get {
       fips = {}
       zips.map (fip) ->
         f = fip.split(',')
-        fips[f[0]] = { city: f[1], county: f[2], geoid: f[3].replace(/\r/,'') }
+        fips[f[0]] = { state: f[1], county: f[2], geoid: f[3].replace(/\r/,'') }
+        # console .log fips[f[0]] if f[3].length < 4
 
       #command-line debugging/versioning
-      console .log "lookup service ready v0.0.3"
+      console .log "lookup service ready v0.0.35"
       
       server = http.createServer (request, res) ->
         
@@ -89,9 +90,9 @@ http.get {
                 # add the matching fips codes for the postal code in the US
                 if citydata.country_code == 'US'
                   zip_to_fips = fips[citydata.postal_code]
-                  citydata.fip_city = zip_to_fips.city
-                  citydata.fip_county = zip_to_fips.county
-                  citydata.fip_geoid = zip_to_fips.geoid
+                  citydata.fips_state = zip_to_fips.state
+                  citydata.fips_county = zip_to_fips.county
+                  citydata.fips_geoid = zip_to_fips.geoid
 
                 #mark intranet/extranet
                 #TODO console .log "has citydata"
