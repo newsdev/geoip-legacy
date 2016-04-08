@@ -78,17 +78,18 @@ http.get {
                 #lookup fips
                 citydata.fips = null
                 fipsfile = null
-                fs.readFile('/data/fips.csv', (err, data) =>
-                  if data 
+                get_fips = ->
+                  fs.readFileSync '/data/fips.csv', (err, fips) ->
+                    throw err if err
                     console .log 'successful readFile'
-                    console .log data.length
-                    fipsfile = data
-                  else
-                    console .log 'no file'
-                
+                    console .log fips.length
+                    # fipsfile = fips
+
+                console log get_fips()
 
                 if fipsfile
                   console .log 'fips'
+                  get_fips()
                   console .log fipsfile.length
 
                 #mark intranet/extranet
