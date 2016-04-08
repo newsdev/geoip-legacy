@@ -79,7 +79,7 @@ http.get {
                 citydata.fips = null
                 fipsfile = null
 
-                contents = fs.readFileSync '/data/fips.csv', "utf8"
+                contents = fs.readFileSync 'data/fips.csv', "utf8"
                 if contents
                   zips = contents.split("\n")
 
