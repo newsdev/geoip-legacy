@@ -77,7 +77,7 @@ http.get {
                 #lookup fips
                 citydata.fips = null
                 fipsfile = null
-                fs.readFile 'data/fips.csv', (err, data) -> fileText = fipsfile
+                fs.readFile 'data/fips.csv', (err, data) -> fipsfile = data
 
                 if fipsfile
                   console .log fipsfile.length
