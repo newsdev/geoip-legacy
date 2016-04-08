@@ -81,14 +81,10 @@ http.get {
 
                 fipsfile = fs.readFileSync 'data/fips.csv', "utf8"
                 zips = fipsfile.split("\n")
-                console .log zips.length
 
                 if zips
-                  match_line = zips.select (fip) ->
-                    fip.indexOf(citydata.postal_code) >= 0
-                  
-                  match_line = match_line.split(',') if match_line
-                  console .log match_line
+                  fip = zips.filter (fip) -> fip.split(',')[0] === citydata.postal_code
+                  console .log fip
 
                 #mark intranet/extranet
                 #TODO console .log "has citydata"
