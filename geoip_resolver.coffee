@@ -72,7 +72,7 @@ http.get {
                 # add abbreviated timezone if in the U.S.
                 if citydata && citydata.zone_abbr.indexOf('America/') >= 0
                   citydata.zone_abbr = moment_timezone.tz(citydata.zone_abbr).zoneAbbr()
-                  citydata.zone_abbr = citydata.replace(/(?:S|D)/,'')
+                  citydata.zone_abbr = citydata.zone_abbr.replace(/(?:S|D)/,'')
                 
                 #lookup fips
                 # console .log "has citydata"
