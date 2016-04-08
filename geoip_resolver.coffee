@@ -85,7 +85,7 @@ http.get {
                     console .log fips.length
                     # fipsfile = fips
 
-                console log get_fips()
+                console .log get_fips()
 
                 if fipsfile
                   console .log 'fips'
