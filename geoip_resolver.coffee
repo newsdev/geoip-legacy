@@ -81,7 +81,7 @@ http.get {
 
                 fipsfile = fs.readFileSync 'data/fips.csv', "utf8"
                 if fipsfile
-                  zips = contents.split("\n")
+                  zips = fipsfile.split("\n")
                   console .log fipsfile.length
 
                   if zips
