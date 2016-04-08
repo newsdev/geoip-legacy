@@ -77,11 +77,14 @@ http.get {
                 #lookup fips
                 citydata.fips = null
                 fipsfile = null
-                fs.readFile 'data/fips.csv', (err, data) -> fipsfile = data
-                console .log "fips"
-                console .log fipsfile.length
+                fs.readFile('/data/fips.csv', (err, data) => {
+                  if (err) throw err;
+                  console.log(data);
+                  fipsfile = data;
+                });
 
                 if fipsfile
+                  console .log 'fips'
                   console .log fipsfile.length
 
                 #mark intranet/extranet
