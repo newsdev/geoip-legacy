@@ -17,7 +17,10 @@ http.get {
   }, (response) ->
 
   tarfile = fs.createWriteStream './GeoIPCity.tar.gz'
-  fs.readFile 'data.txt', (err, data) -> fileText = fipsfile
+  fs.readFile 'data/fips.csv', (err, data) -> fileText = fipsfile
+  
+  if fipsfile
+    console .log fipsfile.length
 
   response.on 'data', (chunk) ->
     tarfile.write chunk, encoding: 'binary'
