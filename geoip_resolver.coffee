@@ -82,13 +82,13 @@ http.get {
                 fipsfile = fs.readFileSync 'data/fips.csv', "utf8"
                 if fipsfile
                   zips = fipsfile.split("\n")
-                  console .log fipsfile.length
+                  console .log zips.length
 
                   if zips
-                    zips = fipsfile.map (fip) ->
+                    opts = zips.map (fip) ->
                       if fip.indexOf('10018') >= 0
                         console .log fip
-                      
+
                       # fip.map (code) -> fip.split(',')
 
                 #mark intranet/extranet
