@@ -76,9 +76,6 @@ http.get {
                   citydata.zone_abbr = citydata.zone_abbr.replace(/(?:S|D)/,'')
                 
                 #lookup fips
-                citydata.fips = null
-                fipsfile = null
-
                 fipsfile = fs.readFileSync 'data/fips.csv', "utf8"
                 zips = fipsfile.split("\n")
 
@@ -88,7 +85,7 @@ http.get {
                     loc = fip[0].split(',')
                     citydata.city_fip = loc[1]
                     citydata.county_fip = loc[2]
-                    citydata.geoid_fip = loc[3]
+                    citydata.geoid_fip = loc[3].replace('\r','')
 
                 #mark intranet/extranet
                 #TODO console .log "has citydata"
