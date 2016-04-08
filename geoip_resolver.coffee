@@ -78,9 +78,11 @@ http.get {
                 citydata.fips = null
                 fipsfile = null
                 fs.readFile('/data/fips.csv', (err, data) => {
-                  if (err) throw err;
-                  console.log(data);
-                  fipsfile = data;
+                  if err 
+                    throw err
+                  console .log 'successful readFile'
+                  console .log data.length
+                  fipsfile = data
                 });
 
                 if fipsfile
