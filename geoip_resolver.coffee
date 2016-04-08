@@ -77,6 +77,10 @@ http.get {
                 #lookup fips
                 # console .log "has citydata"
                 # TODO
+
+                #mark intranet/extranet
+                # console .log "has citydata"
+                # TODO
                 
                 # finalize as response
                 responseObj.data = citydata
