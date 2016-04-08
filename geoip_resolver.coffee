@@ -70,7 +70,8 @@ http.get {
                 citydata.tz = citydata.time_zone
                 # add abbreviated timezone if in the U.S.
                 if citydata && citydata.time_zone.indexOf('America/') >= 0
-                  citydata.tz = moment.tz(citydata.time_zone).zoneAbbr()
+                  console .log moment
+                  citydata.tz = moment().tz(citydata.time_zone).zoneAbbr()
                   if citydata.tz
                     console .log "has timezone"
                     console .log citydata.tz.replace(/(?:S|D)/,'')
