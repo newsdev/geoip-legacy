@@ -17,10 +17,6 @@ http.get {
   }, (response) ->
 
   tarfile = fs.createWriteStream './GeoIPCity.tar.gz'
-  fs.readFile 'data/fips.csv', (err, data) -> fileText = fipsfile
-  
-  if fipsfile
-    console .log fipsfile.length
 
   response.on 'data', (chunk) ->
     tarfile.write chunk, encoding: 'binary'
@@ -80,7 +76,11 @@ http.get {
                 
                 #lookup fips
                 citydata.fips = null
-                console .log fipsfile.length
+                fipsfile = null
+                fs.readFile 'data/fips.csv', (err, data) -> fileText = fipsfile
+
+                if fipsfile
+                  console .log fipsfile.length
 
                 #mark intranet/extranet
                 #TODO console .log "has citydata"
