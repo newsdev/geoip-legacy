@@ -54,7 +54,7 @@ For details about the keys, see the documentation in [Preview](http://newsdev.ec
 
 #### Tests
 
-The Jasmine tests can be run via PhantomJS using grunt: `grunt jasmine` (Tests currently not working).
+~~The Jasmine tests can be run via PhantomJS using grunt: `grunt jasmine`.~~ (Tests currently not working).
 
 ## Server
 
@@ -66,6 +66,16 @@ Since the server requires GNU tar, you'll likely find it easiest to develop loca
 ```
 docker build -t geoip . && docker run -p 80:80 -e MAXMIND_LICENSE=... -e ORIGIN_RE="/^https?:\/\/([\w-]+\.)*yourdomain\.com(:\d+)?$/" geoip
 ```
+
+To develop locally against your docker image, ping your locally running service like this:
+
+`curl -vv -H "Origin: http://www.nytimes.com" [your_docker_image_IP]:80/?ip=170.149.100.10`
+
+You should then get a response like
+
+`{"response":true,"data":{"country_code":"US","country_code3":"USA","country_name":"United States","region":"NY","city":"New York","postal_code":"10018","latitude":40.75529861450195,"longitude":-73.99240112304688,"metro_code":501,"dma_code":501,"area_code":212,"continent_code":"NA","time_zone":"America/New_York","zone_abbr":"ET"},"status":"ok"}`
+
+For more details and deployment steps for the server image, [check out the DevOps wiki](https://github.com/newsdev/devops/wiki/Geoip) [NYT only].  
 
 #### On other platforms
 

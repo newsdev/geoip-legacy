@@ -3,6 +3,8 @@ http = require 'http'
 url = require 'url'
 fs = require 'fs'
 zlib = require 'zlib'
+moment = require 'moment'
+moment_timezone = require 'moment-timezone'
 
 throw "You must supply a ORIGIN_RE ENV var!" if !process.env.ORIGIN_RE?
 origin_re = new RegExp process.env.ORIGIN_RE
@@ -23,7 +25,7 @@ http.get {
     require('child_process').exec "tar -xzOf GeoIPCity.tar.gz --wildcards '*/GeoIPCity.dat' > GeoIPCity.dat", (err) ->
       throw err if err
       lookup = new geoip.City './GeoIPCity.dat'
-      console .log "lookup set"
+      console .log "lookup service ready v1.2"
 
       server = http.createServer (request, res) ->
         
@@ -66,6 +68,17 @@ http.get {
 
               # Insure there was a valid response
               if citydata
+                citydata.zone_abbr = citydata.time_zone
+                # add abbreviated timezone if in the U.S.
+                if citydata && citydata.zone_abbr.indexOf('America/') >= 0
+                  citydata.zone_abbr = moment_timezone.tz(citydata.zone_abbr).zoneAbbr()
+                  citydata.zone_abbr = citydata.zone_abbr.replace(/(?:S|D)/,'')
+                
+                #lookup fips
+                # console .log "has citydata"
+                # TODO
+                
+                # finalize as response
                 responseObj.data = citydata
                 responseObj.status = 'ok'
                 res.statusCode = 200;
@@ -97,7 +110,7 @@ http.get {
         res.end()
         
       server.listen 80, ->
-        console.log "server listening on :80"
+        console .log "server listening on :80"
 
 .on 'error', (err) ->
   throw err
