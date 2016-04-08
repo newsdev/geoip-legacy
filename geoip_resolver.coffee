@@ -68,6 +68,7 @@ http.get {
 
               # Insure there was a valid response
               if citydata
+
                 citydata.zone_abbr = citydata.time_zone
                 # add abbreviated timezone if in the U.S.
                 if citydata && citydata.zone_abbr.indexOf('America/') >= 0
@@ -77,12 +78,13 @@ http.get {
                 #lookup fips
                 citydata.fips = null
                 fipsfile = null
-                fs.readFile('/data/fips.csv', (err, data) ->
-                  if err 
-                    throw err
-                  console .log 'successful readFile'
-                  console .log data.length
-                  fipsfile = data
+                fs.readFile('/data/fips.csv', (err, data) =>
+                  if data 
+                    console .log 'successful readFile'
+                    console .log data.length
+                    fipsfile = data
+                  else
+                    console .log 'no file'
                 
 
                 if fipsfile
