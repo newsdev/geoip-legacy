@@ -35,7 +35,6 @@ http.get {
       zips.map (fip) ->
         f = fip.split(',')
         fips[f[0]] = { state: f[1], county: f[2], geoid: f[3].replace(/\r/,'') }
-        # console .log fips[f[0]] if f[3].length < 4
 
       #command-line debugging/versioning
       console .log "lookup service ready v0.0.35"
