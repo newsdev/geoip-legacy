@@ -73,7 +73,7 @@ To develop locally against your docker image, ping your locally running service 
 
 You should then get a response like
 
-`{"response":true,"data":{"country_code":"US","country_code3":"USA","country_name":"United States","region":"NY","city":"New York","postal_code":"10018","latitude":40.75529861450195,"longitude":-73.99240112304688,"metro_code":501,"dma_code":501,"area_code":212,"continent_code":"NA","time_zone":"America/New_York","zone_abbr":"ET"},"status":"ok"}`
+`{"response":true,"data":{"country_code":"US","country_code3":"USA","country_name":"United States","region":"NY","city":"New York","postal_code":"10018","latitude":40.75529861450195,"longitude":-73.99240112304688,"metro_code":501,"dma_code":501,"area_code":212,"continent_code":"NA","time_zone":"America/New_York","zone_abbr":"ET","fips_state":"36","fips_county":"061","fips_geoid":"36061"},"status":"ok"}`
 
 For more details and deployment steps for the server image, [check out the DevOps wiki](https://github.com/newsdev/devops/wiki/Geoip) [NYT only].  
 
@@ -118,29 +118,43 @@ Use the same basic format to add your own custom logic for handling the response
 
 #### Default behavior
 
-When the client-side script is instantiated on the page, it will automatically apply a subset of geocoded data as classes to the `html` tag.  Styles can then be written to show/hide elements depending on geolocation per session.  
+When the client-side script is instantiated on the page, it will automatically apply a subset of geocoded data as classes to the `html` tag.  Styles can then be written to show/hide elements depending on geolocation per session.
+
+Here are the properties promoted to classes on `html`:
+
+* `geo-continent-NA`: Continent as a code, from [this list](http://dev.maxmind.com/geoip/geoip2/web-services/#continent-10)
+* `geo-country-US`: Country as a code, from [this list](https://www.iso.org/obp/ui/#search/code/)
+* `geo-region-NY`: State/province or equivalent as a code
+* `geo-dma-501`: Media Market code, from [this list](https://developers.google.com/adwords/api/docs/appendix/cities-DMAregions)
+* `geo-postal-10014`: Postal code, for [34 countries in this list](https://www.maxmind.com/en/geoip2-city-database-accuracy)
+* `geo-timezone-America/New_York`: the reader's timezone
+* `geo-us-timezone-ET`: the American reader's timezone in shorthand
 
 For a response from the geoip service that looks like this:
 
 ```json
 {
   "response": true,
-  "data":{
-    "country_code":"US",
-    "country_code3":"USA",
-    "country_name":"United States",
-    "region":"NY",
-    "city":"New York",
-    "postal_code":"10018",
-    "latitude":40.75529861450195,
-    "longitude":-73.99240112304688,
-    "metro_code":501,
-    "dma_code":501,
-    "area_code":212,
-    "continent_code":"NA",
-    "time_zone":"America/New_York"
+  "data": {
+    "country_code": "US",
+    "country_code3": "USA",
+    "country_name": "United States",
+    "region": "NY",
+    "city": "New York",
+    "postal_code": "10018",
+    "latitude": 40.755298614502,
+    "longitude": -73.992401123047,
+    "metro_code": 501,
+    "dma_code": 501,
+    "area_code": 212,
+    "continent_code": "NA",
+    "time_zone": "America\/New_York",
+    "zone_abbr": "ET",
+    "fips_state": "36",
+    "fips_county": "061",
+    "fips_geoid": "36061"
   },
-  "status":"ok"
+  "status": "ok"
 }
 ```
 
