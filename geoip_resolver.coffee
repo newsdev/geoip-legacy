@@ -7,8 +7,8 @@ zlib = require 'zlib'
 moment = require 'moment'
 moment_timezone = require 'moment-timezone'
 
-throw "You must supply a ORIGIN_RE ENV var!" if !process.env.ORIGIN_RE?
-throw "You must supply a MAXMIND_DATABASE_URL ENV var!" if !process.env.MAXMIND_DATABASE_URL?
+throw "Please provide a ORIGIN_RE environmental variable." if !process.env.ORIGIN_RE?
+throw "Please provide a MAXMIND_DATABASE_URL environmental variable." if !process.env.MAXMIND_DATABASE_URL?
 origin_re = new RegExp process.env.ORIGIN_RE
 
 lookup = false
@@ -73,7 +73,7 @@ https.get process.env.MAXMIND_DATABASE_URL, (response) ->
               # Otherwise handle proxied connections
               else if request.headers['x-forwarded-for']
                 ip = request.headers['x-forwarded-for'].split(/,\s+/)[0]
-              
+
               # Run the actual lookup
               citydata = lookup.lookupSync ip
 
@@ -81,7 +81,7 @@ https.get process.env.MAXMIND_DATABASE_URL, (response) ->
               if citydata
 
                 # add abbreviated timezone when in the U.S.
-                if citydata.time_zone.match(/^America\//)
+                if citydata.time_zone && citydata.time_zone.match(/^America\//)
                   full_abbr = moment_timezone.tz(citydata.time_zone).zoneAbbr()
                   citydata.zone_abbr = full_abbr.replace(/(?:S|D)/,'')
                 
