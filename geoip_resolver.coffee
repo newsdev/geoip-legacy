@@ -1,5 +1,6 @@
 geoip = require 'geoip'
 http = require 'http'
+https = require 'https'
 url = require 'url'
 fs = require 'fs'
 zlib = require 'zlib'
@@ -7,14 +8,12 @@ moment = require 'moment'
 moment_timezone = require 'moment-timezone'
 
 throw "You must supply a ORIGIN_RE ENV var!" if !process.env.ORIGIN_RE?
+throw "You must supply a MAXMIND_DATABASE_URL ENV var!" if !process.env.MAXMIND_DATABASE_URL?
 origin_re = new RegExp process.env.ORIGIN_RE
 
 lookup = false
 
-http.get {
-    hostname: 'download.maxmind.com'
-    path: "/app/download_new?edition_id=133&suffix=tar.gz&license_key=#{process.env.MAXMIND_LICENSE}"
-  }, (response) ->
+https.get process.env.MAXMIND_DATABASE_URL, (response) ->
 
   tarfile = fs.createWriteStream './GeoIPCity.tar.gz'
 
@@ -34,10 +33,10 @@ http.get {
       fips = {}
       zips.map (fip) ->
         f = fip.split(',')
-        fips[f[0]] = { city: f[1], county: f[2], geoid: f[3].replace(/\r/,'') }
+        fips[f[0]] = { state: f[1], county: f[2], geoid: f[3].replace(/\r/,'') }
 
       #command-line debugging/versioning
-      console .log "lookup service ready v0.0.3"
+      console .log "lookup service ready v0.0.375"
       
       server = http.createServer (request, res) ->
         
@@ -89,9 +88,9 @@ http.get {
                 # add the matching fips codes for the postal code in the US
                 if citydata.country_code == 'US'
                   zip_to_fips = fips[citydata.postal_code]
-                  citydata.fip_city = zip_to_fips.city
-                  citydata.fip_county = zip_to_fips.county
-                  citydata.fip_geoid = zip_to_fips.geoid
+                  citydata.fips_state = zip_to_fips.state
+                  citydata.fips_county = zip_to_fips.county
+                  citydata.fips_geoid = zip_to_fips.geoid
 
                 #mark intranet/extranet
                 citydata.intranet = false
