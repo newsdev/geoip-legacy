@@ -64,7 +64,7 @@ For details about the keys, see the documentation in [Preview](http://newsdev.ec
 Since the server requires GNU tar, you'll likely find it easiest to develop locally on OS X by building and then running a docker image:
 
 ```
-docker build -t geoip . && docker run -p 80:80 -e MAXMIND_LICENSE=... -e ORIGIN_RE="/^https?:\/\/([\w-]+\.)*yourdomain\.com(:\d+)?$/" geoip
+docker build -t geoip . && docker run --name geoip --rm -p 80:80 -e MAXMIND_DATABASE_URL=...S3-path-to/GeoIPCity.tar.gz -e AIRBRAKE_PROJECT_ID=...your_id... -e AIRBRAKE_API_KEY=..your_key... -e ORIGIN_RE="/^https?:\/\/([\w-]+\.)*yourdomain\.com(:\d+)?$/" -e NODE_ENV=production geoip
 ```
 
 To develop locally against your docker image, ping your locally running service like this:
