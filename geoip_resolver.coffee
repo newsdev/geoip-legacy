@@ -6,10 +6,17 @@ fs = require 'fs'
 zlib = require 'zlib'
 moment = require 'moment'
 moment_timezone = require 'moment-timezone'
+airbrake = require 'airbrake'
 
-throw "You must supply a ORIGIN_RE ENV var!" if !process.env.ORIGIN_RE?
-throw "You must supply a MAXMIND_DATABASE_URL ENV var!" if !process.env.MAXMIND_DATABASE_URL?
+throw "Please provide a ORIGIN_RE environmental variable." if !process.env.ORIGIN_RE?
+throw "Please provide a MAXMIND_DATABASE_URL environmental variable." if !process.env.MAXMIND_DATABASE_URL?
 origin_re = new RegExp process.env.ORIGIN_RE
+
+#airbrake
+if process.env.AIRBRAKE_API_KEY?
+  airbrake = airbrake.createClient(process.env.AIRBRAKE_PROJECT_ID, process.env.AIRBRAKE_API_KEY)
+  airbrake.handleExceptions
+  console.log "airbrake watching"
 
 lookup = false
 
@@ -36,7 +43,7 @@ https.get process.env.MAXMIND_DATABASE_URL, (response) ->
         fips[f[0]] = { state: f[1], county: f[2], geoid: f[3].replace(/\r/,'') }
 
       #command-line debugging/versioning
-      console .log "lookup service ready v0.0.375"
+      console.log "lookup service ready v0.0.385"
       
       server = http.createServer (request, res) ->
         
@@ -73,7 +80,7 @@ https.get process.env.MAXMIND_DATABASE_URL, (response) ->
               # Otherwise handle proxied connections
               else if request.headers['x-forwarded-for']
                 ip = request.headers['x-forwarded-for'].split(/,\s+/)[0]
-              
+
               # Run the actual lookup
               citydata = lookup.lookupSync ip
 
@@ -81,16 +88,17 @@ https.get process.env.MAXMIND_DATABASE_URL, (response) ->
               if citydata
 
                 # add abbreviated timezone when in the U.S.
-                if citydata.time_zone.match(/^America\//)
+                if citydata.time_zone && citydata.time_zone.match(/^America\//)
                   full_abbr = moment_timezone.tz(citydata.time_zone).zoneAbbr()
                   citydata.zone_abbr = full_abbr.replace(/(?:S|D)/,'')
                 
                 # add the matching fips codes for the postal code in the US
-                if citydata.country_code == 'US'
+                if citydata.country_code && citydata.country_code == 'US'
                   zip_to_fips = fips[citydata.postal_code]
-                  citydata.fips_state = zip_to_fips.state
-                  citydata.fips_county = zip_to_fips.county
-                  citydata.fips_geoid = zip_to_fips.geoid
+                  if zip_to_fips
+                    citydata.fips_state = zip_to_fips.state
+                    citydata.fips_county = zip_to_fips.county
+                    citydata.fips_geoid = zip_to_fips.geoid
 
                 #mark intranet/extranet
                 citydata.intranet = false
@@ -127,7 +135,7 @@ https.get process.env.MAXMIND_DATABASE_URL, (response) ->
         res.end()
         
       server.listen 80, ->
-        console .log "server listening on :80"
+        console.log "server listening on :80"
 
 .on 'error', (err) ->
   throw err
