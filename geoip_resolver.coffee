@@ -86,11 +86,12 @@ https.get process.env.MAXMIND_DATABASE_URL, (response) ->
                   citydata.zone_abbr = full_abbr.replace(/(?:S|D)/,'')
                 
                 # add the matching fips codes for the postal code in the US
-                if citydata.country_code == 'US'
+                if citydata.country_code && citydata.country_code == 'US'
                   zip_to_fips = fips[citydata.postal_code]
-                  citydata.fips_state = zip_to_fips.state
-                  citydata.fips_county = zip_to_fips.county
-                  citydata.fips_geoid = zip_to_fips.geoid
+                  if zip_to_fips
+                    citydata.fips_state = zip_to_fips.state
+                    citydata.fips_county = zip_to_fips.county
+                    citydata.fips_geoid = zip_to_fips.geoid
 
                 #mark intranet/extranet
                 #TODO console .log "has citydata"
