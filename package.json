@@ -6,6 +6,7 @@
     "start": "coffee geoip_resolver.coffee"
   },
   "dependencies": {
+    "airbrake": "^1.0.1",
     "coffee-script": "1.10.0",
     "geoip": "0.6.1",
     "grunt": "~0.4.5",
