@@ -32,7 +32,7 @@ Please add [Issues to this repo on Github](https://github.com/newsdev/geoip/issu
 
 #### Local development
 
-JavaScript dependencies must be installed via NPM:
+JavaScript dependencies like grunt can be installed via NPM:
 
 ```
 npm install
