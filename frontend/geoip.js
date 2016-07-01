@@ -93,9 +93,10 @@
     //data-attr decorate html tag
     if (geo_data !== undefined && !already_processed) {
       for (var i = 0, prop; prop = property_whitelist[i]; i++) {
-        if (geo_data[prop] === undefined) { /*console.warn('no data for',prop);*/ return null; }
-        var classed = ['geo', prop_clean(prop), geo_data[prop]].join('-');
-        dom[0].classList.add(classed);
+        if (geo_data[prop] !== undefined) {
+          var classed = ['geo', prop_clean(prop), geo_data[prop]].join('-');
+          dom[0].classList.add(classed);
+        }
       }
       already_processed = true;
     }
